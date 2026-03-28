@@ -22,8 +22,8 @@ REPS="${REPS:-5}"
 
 BUILD_BASELINE="build/baseline"
 BUILD_ASSUME="build/assume"
-RESULTS_BASELINE="build/results/baseline"
-RESULTS_ASSUME="build/results/assume"
+RESULTS_BASELINE="results/baseline"
+RESULTS_ASSUME="results/assume"
 
 ALL_BENCHES=(
   bench_gemm
@@ -42,10 +42,13 @@ ALL_BENCHES=(
 )
 
 KEEP_BASELINE=false
+SAVED=false
 ARGS=()
 for arg in "$@"; do
-  if [[ "$arg" == "keep" ]]; then
+  if [[ "$arg" == "baseline" ]]; then
     KEEP_BASELINE=true
+  elif [[ "$arg" == "saved" ]]; then
+    SAVED=true
   else
     ARGS+=("$arg")
   fi
@@ -78,10 +81,11 @@ build_if_needed() {
   fi
 }
 
-build_if_needed "$BUILD_BASELINE" "" "baseline"
-build_if_needed "$BUILD_ASSUME" "-DEIGEN_ASSERT_USE_BUILTIN_ASSUME" "assume"
-
-mkdir -p "$RESULTS_BASELINE" "$RESULTS_ASSUME"
+if ! $SAVED; then
+  build_if_needed "$BUILD_BASELINE" "" "baseline"
+  build_if_needed "$BUILD_ASSUME" "-DEIGEN_ASSERT_USE_BUILTIN_ASSUME" "assume"
+  mkdir -p "$RESULTS_BASELINE" "$RESULTS_ASSUME"
+fi
 
 # ── run ────────────────────────────────────────────────────────────────────────
 
@@ -106,16 +110,20 @@ run_bench() {
 }
 
 echo ""
-if $KEEP_BASELINE; then
-  echo "==> Keeping existing baseline results (skipping re-run)."
+if $SAVED; then
+  echo "==> Using saved results (skipping all benchmark runs)."
 else
-  echo "==> Running baseline benchmarks (${REPS} reps each)..."
-  run_bench "baseline" "$BUILD_BASELINE" "$RESULTS_BASELINE"
-fi
+  if $KEEP_BASELINE; then
+    echo "==> Keeping existing baseline results (skipping re-run)."
+  else
+    echo "==> Running baseline benchmarks (${REPS} reps each)..."
+    run_bench "baseline" "$BUILD_BASELINE" "$RESULTS_BASELINE"
+  fi
 
-echo ""
-echo "==> Running assume benchmarks (${REPS} reps each)..."
-run_bench "assume" "$BUILD_ASSUME" "$RESULTS_ASSUME"
+  echo ""
+  echo "==> Running assume benchmarks (${REPS} reps each)..."
+  run_bench "assume" "$BUILD_ASSUME" "$RESULTS_ASSUME"
+fi
 
 # ── compare ────────────────────────────────────────────────────────────────────
 
@@ -167,6 +175,36 @@ for bname in bench_names:
 if not rows:
     print("No results found.")
     sys.exit(1)
+
+# ── per-case detail table ─────────────────────────────────────────────────────
+CW = 30
+KW = 55
+hdr2 = f"{'benchmark':<{CW}}  {'case':<{KW}}  {'baseline':>12}  {'assume':>12}  {'delta':>9}  "
+sep2 = "-" * (len(hdr2) + 2)
+
+print(f"\n{BOLD}{'=' * len(sep2)}{RESET}")
+print(f"{BOLD}  All cases — baseline vs __builtin_assume{RESET}")
+print(f"{BOLD}{'=' * len(sep2)}{RESET}")
+print(hdr2)
+print(sep2)
+
+cur_bench = None
+for bname, k, b, a, pct in rows:
+    if bname != cur_bench:
+        if cur_bench is not None:
+            print()
+        print(f"{BOLD}{bname}{RESET}")
+        cur_bench = bname
+    color = delta_color(pct)
+    if pct < -1:
+        ind = "▼"
+    elif pct > 1:
+        ind = "▲"
+    else:
+        ind = " "
+    print(f"  {'':<{CW-2}}{k:<{KW}}  {b:>12.1f}  {a:>12.1f}  {color}{pct:>+8.2f}%{RESET} {color}{ind}{RESET}")
+
+print(sep2)
 
 # ── per-benchmark summary table ───────────────────────────────────────────────
 w = 35

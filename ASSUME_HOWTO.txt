@@ -1,0 +1,92 @@
+COMPARE-WITH-ASSUME(1)                                    COMPARE-WITH-ASSUME(1)
+
+NAME
+    compare-with-assume.sh - benchmark Eigen with eigen_assert vs
+    __builtin_assume and compare results. Optionally uses results
+    that have been backed up in a top level results folder.
+
+SYNOPSIS
+    ./compare-with-assume.sh [BENCH...]
+    ./compare-with-assume.sh baseline [BENCH...]
+    ./compare-with-assume.sh saved [BENCH...]
+
+DESCRIPTION
+    Builds two variants of the Eigen benchmark suite - a baseline using
+    eigen_assert and an assume build using -DEIGEN_ASSERT_USE_BUILTIN_ASSUME -
+    runs them, and prints a per-case and per-benchmark comparison table with
+    deltas, color coding, and directional indicators.
+
+    By default all 13 Core benchmarks are run. Specific benchmarks may be
+    named as positional arguments.
+
+OPTIONS        
+    baseline
+        Skip re-running the baseline benchmarks. Rerun only the assume
+        benchmarks, then compare. Useful when the baseline results are already
+        good and only the assume variant needs refreshing.
+
+    saved
+        Skip all benchmark runs. Compare using previously saved JSON results
+        from ./results/baseline/ and ./results/assume/.
+
+    BENCH...
+        One or more benchmark names to run and compare instead of the full
+        suite. Names correspond to executables under build/baseline/Core/ and
+        build/assume/Core/.
+
+        Available benchmarks:
+            bench_gemm               bench_gemm_double
+            bench_gemv               bench_vecadd
+            bench_reductions         bench_fixed_size
+            bench_fixed_size_double  bench_trsm
+            bench_trmv               bench_triangular_product
+            bench_selfadjoint_product bench_dot
+            bench_block_ops
+
+ENVIRONMENT
+    CXX     C++ compiler to use. Default: clang++-18
+    JOBS    Parallel build jobs. Default: nproc
+    REPS    Benchmark repetitions per case. Default: 5
+
+OUTPUT
+    Results are written as JSON to:
+        ./results/baseline/<bench>.json
+        ./results/assume/<bench>.json
+
+    Two tables are printed to stdout:
+
+    1. Per-case detail table - all cases with baseline time, assume time,
+       delta percentage, and a directional indicator:
+           green / ▼   faster by more than 1%
+           red   / ▲   slower by more than 1%
+           yellow       within ±1% (wash)
+
+    2. Per-benchmark summary table - case count, number faster/slower,
+       and average delta per benchmark, followed by overall totals.
+
+EXAMPLES
+    Run everything from scratch:
+        ./compare-with-assume.sh
+
+    Run only gemm benchmarks:
+        ./compare-with-assume.sh bench_gemm bench_gemm_double
+
+    Re-run only the assume variant, keep saved baseline:
+        ./compare-with-assume.sh baseline
+
+    Compare using saved results without running anything:
+        ./compare-with-assume.sh saved
+
+    Compare a single benchmark using saved results:
+        ./compare-with-assume.sh saved bench_trsm
+
+MACHINE
+    AMD Ryzen AI 9 HX 370 (Zen 5), 12c/24t, AVX-512, running under WSL2.
+    Compiler: clang++-18, flags: -O3 -DNDEBUG -march=native.
+
+FILES
+    ./results/baseline/     Saved baseline JSON results
+    ./results/assume/       Saved assume JSON results
+    ./benchmarks/           CMake benchmark source directory
+
+                                                          COMPARE-WITH-ASSUME(1)
