@@ -151,7 +151,11 @@ EIGEN_DEVICE_FUNC EIGEN_DONT_INLINE inline void __assert_handler(const char* exp
 
 #else  // EIGEN_NO_DEBUG
 
+#ifdef EIGEN_ASSERT_USE_BUILTIN_ASSUME
+#define eigen_plain_assert(condition) __builtin_assume(!!(condition))
+#else
 #define eigen_plain_assert(condition) ((void)0)
+#endif
 
 #endif  // EIGEN_NO_DEBUG
 

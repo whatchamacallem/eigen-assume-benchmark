@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3 -c \":*)",
+      "Bash(build/baseline/Core/bench_trmv --benchmark_repetitions=5 --benchmark_report_aggregates_only=true --benchmark_format=json --benchmark_out=build/results/baseline/bench_trmv.json)",
+      "Bash(build/assume/Core/bench_gemv --benchmark_repetitions=5 --benchmark_report_aggregates_only=true --benchmark_format=json --benchmark_out=build/results/assume/bench_gemv.json)",
+      "Bash(build/assume/Core/bench_dot --benchmark_repetitions=5 --benchmark_report_aggregates_only=true --benchmark_format=json --benchmark_out=build/results/assume/bench_dot.json)"
+    ]
+  }
+}
