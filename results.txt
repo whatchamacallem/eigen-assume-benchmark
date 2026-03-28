@@ -1,0 +1,763 @@
+
+================================================================================
+ANALYSIS SUMMARY
+================================================================================
+
+Overall: 693 cases, 90 faster >1%, 276 slower >1%, 327 wash (±1%), avg +0.98%
+
+Per-benchmark averages:
+  bench_gemm                  -2.48%  (23/25 faster)   ← clear winner
+  bench_gemm_double           +0.20%  (wash)
+  bench_gemv                  +1.01%  (mostly regression)
+  bench_vecadd                +0.32%  (wash)
+  bench_reductions            +0.62%  (mixed)
+  bench_fixed_size            +0.98%  (slight regression)
+  bench_fixed_size_double     +1.18%  (slight regression)
+  bench_trsm                  +2.33%  (worst avg — TRSV especially bad)
+  bench_trmv                  +1.75%  (float Upper consistently bad)
+  bench_triangular_product    +1.03%  (regression)
+  bench_selfadjoint_product   +0.76%  (wash)
+  bench_dot                   +1.27%  (noisy, outliers both ways)
+  bench_block_ops             +1.74%  (mostly regression)
+
+Notable wins:
+  BM_EigenGemm/192/192/192              -8.53%
+  BM_EigenGemm/160/160/160              -8.45%
+  TRMV_float_Lower/512                  -8.46%
+  VectorNorm_double/65536              -14.01%
+  VectorMinCoeff_float/4096             -7.59%
+  VectorMinCoeff_float/262144           -7.43%
+  VectorProd_float/262144               -7.48%
+  VectorSum_float/262144                -6.57%
+
+Notable regressions:
+  BlockRead_float/512/64               +78.29%  (likely noise/cache artifact)
+  VectorLpNormInf_double/1048576       +20.62%
+  TRMV_float_UnitUpper/1024            +18.89%
+  TRSV_float_Lower/512                 +18.78%
+  TRMV_float_Upper/1024                +18.51%
+  TRSV_float_Lower/128                 +17.61%
+  Dot_double/65536                     +15.78%
+  Dot_cfloat/1048576                   +15.76%
+  TRMV_double_UnitUpper/2048           +15.63%
+  VectorLpNormInf_double/65536         +11.47%
+  TRSV_float_Lower/32                  +11.15%
+  TRMV_float_UnitUpper/64              +11.20%
+
+Pattern: __builtin_assume helps float GEMM consistently (compiler better exploits
+alignment/size hints for the GEBP kernel) but hurts triangular solvers (TRSV/TRMV
+Upper) and large-vector reductions significantly. The hints appear to misguide
+vectorization decisions for upper-triangular traversal patterns and large strided
+reductions where the compiler's default heuristics were better.
+
+
+
+benchmark                       case                                                       baseline      assume     delta
+------------------------------------------------------------------------------------------------------------------------
+bench_gemm                      BM_EigenGemm/1024/1024/1024                              15370160.7  14966207.5    -2.63% ▼
+bench_gemm                      BM_EigenGemm/1024/256/256                                  943602.7    933646.5    -1.06% ▼
+bench_gemm                      BM_EigenGemm/1024/64/64                                     62870.2     60982.8    -3.00% ▼
+bench_gemm                      BM_EigenGemm/128/128/128                                    30253.1     28302.0    -6.45% ▼
+bench_gemm                      BM_EigenGemm/1536/1536/1536                              51310418.0  50463862.3    -1.65% ▼
+bench_gemm                      BM_EigenGemm/16/16/16                                          98.3        96.0    -2.31% ▼
+bench_gemm                      BM_EigenGemm/160/160/160                                    58022.4     53118.2    -8.45% ▼
+bench_gemm                      BM_EigenGemm/192/192/192                                    99923.4     91399.8    -8.53% ▼
+bench_gemm                      BM_EigenGemm/2048/2048/2048                              121240155.3  119787774.3    -1.20% ▼
+bench_gemm                      BM_EigenGemm/224/224/224                                   159143.2    150377.5    -5.51% ▼
+bench_gemm                      BM_EigenGemm/256/256/1024                                  944048.7    935531.9    -0.90%  
+bench_gemm                      BM_EigenGemm/256/256/256                                   238890.5    233717.3    -2.17% ▼
+bench_gemm                      BM_EigenGemm/288/288/288                                   338872.8    332307.9    -1.94% ▼
+bench_gemm                      BM_EigenGemm/32/32/32                                         531.5       524.1    -1.38% ▼
+bench_gemm                      BM_EigenGemm/320/320/320                                   462592.8    457127.2    -1.18% ▼
+bench_gemm                      BM_EigenGemm/384/384/384                                   802774.4    791469.7    -1.41% ▼
+bench_gemm                      BM_EigenGemm/4096/4096/4096                              964079853.0  954828771.0    -0.96%  
+bench_gemm                      BM_EigenGemm/448/448/448                                  1271951.9   1257827.3    -1.11% ▼
+bench_gemm                      BM_EigenGemm/512/512/512                                  1887325.0   1861254.6    -1.38% ▼
+bench_gemm                      BM_EigenGemm/64/1024/64                                     60957.3     60337.3    -1.02% ▼
+bench_gemm                      BM_EigenGemm/64/64/1024                                     63606.6     62078.3    -2.40% ▼
+bench_gemm                      BM_EigenGemm/64/64/64                                        3974.7      3926.0    -1.23% ▼
+bench_gemm                      BM_EigenGemm/768/768/768                                  6377113.5   6300491.5    -1.20% ▼
+bench_gemm                      BM_EigenGemm/8/8/8                                             48.8        47.9    -1.83% ▼
+bench_gemm                      BM_EigenGemm/96/96/96                                       13027.9     12897.1    -1.00% ▼
+
+bench_gemm_double               BM_EigenGemm/1024/1024/1024                              31160952.5  31594124.2    +1.39% ▲
+bench_gemm_double               BM_EigenGemm/1024/256/256                                 1917285.4   1931923.3    +0.76%  
+bench_gemm_double               BM_EigenGemm/1024/64/64                                    130185.2    133689.8    +2.69% ▲
+bench_gemm_double               BM_EigenGemm/128/128/128                                    60833.6     60247.6    -0.96%  
+bench_gemm_double               BM_EigenGemm/1536/1536/1536                              104175692.4  104992046.3    +0.78%  
+bench_gemm_double               BM_EigenGemm/16/16/16                                         168.4       165.7    -1.61% ▼
+bench_gemm_double               BM_EigenGemm/160/160/160                                   117817.1    117629.2    -0.16%  
+bench_gemm_double               BM_EigenGemm/192/192/192                                   202454.0    202528.1    +0.04%  
+bench_gemm_double               BM_EigenGemm/2048/2048/2048                              246366396.7  246627620.0    +0.11%  
+bench_gemm_double               BM_EigenGemm/224/224/224                                   322340.4    324635.7    +0.71%  
+bench_gemm_double               BM_EigenGemm/256/256/1024                                 1939623.9   1967729.9    +1.45% ▲
+bench_gemm_double               BM_EigenGemm/256/256/256                                   482907.5    483541.8    +0.13%  
+bench_gemm_double               BM_EigenGemm/288/288/288                                   680497.1    689752.6    +1.36% ▲
+bench_gemm_double               BM_EigenGemm/32/32/32                                        1054.8      1041.7    -1.24% ▼
+bench_gemm_double               BM_EigenGemm/320/320/320                                   936305.6    947626.1    +1.21% ▲
+bench_gemm_double               BM_EigenGemm/384/384/384                                  1602909.7   1663692.2    +3.79% ▲
+bench_gemm_double               BM_EigenGemm/4096/4096/4096                              1955234582.0  1963792216.0    +0.44%  
+bench_gemm_double               BM_EigenGemm/448/448/448                                  2543251.8   2594724.6    +2.02% ▲
+bench_gemm_double               BM_EigenGemm/512/512/512                                  3835843.0   3955670.0    +3.12% ▲
+bench_gemm_double               BM_EigenGemm/64/1024/64                                    125294.6    127319.6    +1.62% ▲
+bench_gemm_double               BM_EigenGemm/64/64/1024                                    129812.4    131591.2    +1.37% ▲
+bench_gemm_double               BM_EigenGemm/64/64/64                                        8163.1      8128.1    -0.43%  
+bench_gemm_double               BM_EigenGemm/768/768/768                                 12979498.7  13138476.8    +1.22% ▲
+bench_gemm_double               BM_EigenGemm/8/8/8                                             53.8        46.1   -14.40% ▼
+bench_gemm_double               BM_EigenGemm/96/96/96                                       26514.5     26425.6    -0.34%  
+
+bench_gemv                      GemvAdj_cfloat/1/1024                                        1585.3      1593.1    +0.49%  
+bench_gemv                      GemvAdj_cfloat/1/256                                          394.8       402.1    +1.85% ▲
+bench_gemv                      GemvAdj_cfloat/1024/1                                          92.5        93.1    +0.65%  
+bench_gemv                      GemvAdj_cfloat/1024/1024                                    85317.9     85671.6    +0.41%  
+bench_gemv                      GemvAdj_cfloat/1024/16                                       1190.1      1202.9    +1.08% ▲
+bench_gemv                      GemvAdj_cfloat/128/128                                       1338.8      1372.6    +2.53% ▲
+bench_gemv                      GemvAdj_cfloat/16/1024                                       2585.3      2612.9    +1.07% ▲
+bench_gemv                      GemvAdj_cfloat/16/256                                         640.3       641.9    +0.25%  
+bench_gemv                      GemvAdj_cfloat/256/1                                           29.3        29.5    +0.76%  
+bench_gemv                      GemvAdj_cfloat/256/16                                         311.5       317.8    +2.04% ▲
+bench_gemv                      GemvAdj_cfloat/32/32                                          116.0       118.5    +2.16% ▲
+bench_gemv                      GemvAdj_cfloat/512/512                                      22727.0     23489.0    +3.35% ▲
+bench_gemv                      GemvAdj_cfloat/8/8                                             16.6        17.1    +2.80% ▲
+bench_gemv                      GemvConj_cfloat/1/1024                                        886.0       891.9    +0.67%  
+bench_gemv                      GemvConj_cfloat/1/256                                         226.8       228.2    +0.61%  
+bench_gemv                      GemvConj_cfloat/1024/1                                        151.1       150.7    -0.28%  
+bench_gemv                      GemvConj_cfloat/1024/1024                                   88128.7     92006.2    +4.40% ▲
+bench_gemv                      GemvConj_cfloat/1024/16                                      1238.1      1245.5    +0.59%  
+bench_gemv                      GemvConj_cfloat/128/128                                      1242.8      1250.4    +0.61%  
+bench_gemv                      GemvConj_cfloat/16/1024                                      1350.1      1381.2    +2.31% ▲
+bench_gemv                      GemvConj_cfloat/16/256                                        338.3       340.0    +0.49%  
+bench_gemv                      GemvConj_cfloat/256/1                                          38.5        38.7    +0.66%  
+bench_gemv                      GemvConj_cfloat/256/16                                        311.8       310.1    -0.53%  
+bench_gemv                      GemvConj_cfloat/32/32                                          78.2        78.8    +0.71%  
+bench_gemv                      GemvConj_cfloat/512/512                                     24048.9     25293.8    +5.18% ▲
+bench_gemv                      GemvConj_cfloat/8/8                                             9.7         9.8    +0.64%  
+bench_gemv                      GemvTrans_cfloat/1/1024                                      1639.5      1650.4    +0.67%  
+bench_gemv                      GemvTrans_cfloat/1/256                                        410.3       412.0    +0.44%  
+bench_gemv                      GemvTrans_cfloat/1024/1                                        92.3        92.8    +0.51%  
+bench_gemv                      GemvTrans_cfloat/1024/1024                                  85387.3     87333.1    +2.28% ▲
+bench_gemv                      GemvTrans_cfloat/1024/16                                     1186.1      1212.8    +2.25% ▲
+bench_gemv                      GemvTrans_cfloat/128/128                                     1337.2      1343.5    +0.47%  
+bench_gemv                      GemvTrans_cfloat/16/1024                                     2557.9      2574.9    +0.66%  
+bench_gemv                      GemvTrans_cfloat/16/256                                       637.0       640.1    +0.48%  
+bench_gemv                      GemvTrans_cfloat/256/1                                         29.1        29.3    +0.61%  
+bench_gemv                      GemvTrans_cfloat/256/16                                       310.8       317.3    +2.12% ▲
+bench_gemv                      GemvTrans_cfloat/32/32                                        116.0       116.7    +0.62%  
+bench_gemv                      GemvTrans_cfloat/512/512                                    22764.8     22965.7    +0.88%  
+bench_gemv                      GemvTrans_cfloat/8/8                                           16.6        16.7    +0.68%  
+bench_gemv                      GemvTrans_double/1/1024                                       754.3       759.2    +0.65%  
+bench_gemv                      GemvTrans_double/1/256                                        188.1       191.7    +1.96% ▲
+bench_gemv                      GemvTrans_double/1024/1                                        55.4        55.7    +0.53%  
+bench_gemv                      GemvTrans_double/1024/1024                                  67695.4     68496.1    +1.18% ▲
+bench_gemv                      GemvTrans_double/1024/16                                      741.4       745.3    +0.52%  
+bench_gemv                      GemvTrans_double/128/128                                      889.0       900.8    +1.33% ▲
+bench_gemv                      GemvTrans_double/16/1024                                      976.8       983.6    +0.69%  
+bench_gemv                      GemvTrans_double/16/256                                       238.3       240.3    +0.85%  
+bench_gemv                      GemvTrans_double/256/1                                         14.2        14.3    +0.40%  
+bench_gemv                      GemvTrans_double/256/16                                       132.7       134.8    +1.59% ▲
+bench_gemv                      GemvTrans_double/32/32                                         42.8        42.1    -1.66% ▼
+bench_gemv                      GemvTrans_double/512/512                                    18210.9     18182.0    -0.16%  
+bench_gemv                      GemvTrans_double/8/8                                            9.3         9.2    -1.16% ▼
+bench_gemv                      GemvTrans_float/1/1024                                        899.6       898.1    -0.17%  
+bench_gemv                      GemvTrans_float/1/256                                         224.2       224.5    +0.12%  
+bench_gemv                      GemvTrans_float/1024/1                                         27.9        27.9    -0.00%  
+bench_gemv                      GemvTrans_float/1024/1024                                   32686.0     33144.8    +1.40% ▲
+bench_gemv                      GemvTrans_float/1024/16                                       319.2       319.4    +0.08%  
+bench_gemv                      GemvTrans_float/128/128                                       448.6       452.1    +0.78%  
+bench_gemv                      GemvTrans_float/16/1024                                       950.2       949.6    -0.07%  
+bench_gemv                      GemvTrans_float/16/256                                        235.3       235.0    -0.11%  
+bench_gemv                      GemvTrans_float/256/1                                           7.4         7.4    -0.02%  
+bench_gemv                      GemvTrans_float/256/16                                         70.5        71.1    +0.91%  
+bench_gemv                      GemvTrans_float/32/32                                          38.2        37.6    -1.53% ▼
+bench_gemv                      GemvTrans_float/512/512                                      7348.0      7566.8    +2.98% ▲
+bench_gemv                      GemvTrans_float/8/8                                             9.6         9.9    +2.57% ▲
+bench_gemv                      Gemv_cfloat/1/1024                                            695.1       706.1    +1.59% ▲
+bench_gemv                      Gemv_cfloat/1/256                                             170.3       173.3    +1.78% ▲
+bench_gemv                      Gemv_cfloat/1024/1                                            148.8       149.8    +0.66%  
+bench_gemv                      Gemv_cfloat/1024/1024                                       90079.4     90206.9    +0.14%  
+bench_gemv                      Gemv_cfloat/1024/16                                          1234.6      1258.9    +1.97% ▲
+bench_gemv                      Gemv_cfloat/128/128                                          1238.0      1266.1    +2.27% ▲
+bench_gemv                      Gemv_cfloat/16/1024                                          1350.9      1372.6    +1.60% ▲
+bench_gemv                      Gemv_cfloat/16/256                                            338.2       345.3    +2.09% ▲
+bench_gemv                      Gemv_cfloat/256/1                                              38.4        38.5    +0.25%  
+bench_gemv                      Gemv_cfloat/256/16                                            307.5       309.3    +0.59%  
+bench_gemv                      Gemv_cfloat/32/32                                              77.9        79.7    +2.29% ▲
+bench_gemv                      Gemv_cfloat/512/512                                         24002.7     24899.1    +3.73% ▲
+bench_gemv                      Gemv_cfloat/8/8                                                 9.6         9.7    +1.14% ▲
+bench_gemv                      Gemv_double/1/1024                                            815.5       816.8    +0.15%  
+bench_gemv                      Gemv_double/1/256                                             162.0       162.3    +0.17%  
+bench_gemv                      Gemv_double/1024/1                                             62.9        63.5    +0.96%  
+bench_gemv                      Gemv_double/1024/1024                                       92398.6     95268.6    +3.11% ▲
+bench_gemv                      Gemv_double/1024/16                                          1005.7      1008.7    +0.30%  
+bench_gemv                      Gemv_double/128/128                                           888.4       899.8    +1.28% ▲
+bench_gemv                      Gemv_double/16/1024                                           704.6       706.4    +0.26%  
+bench_gemv                      Gemv_double/16/256                                            172.5       171.4    -0.65%  
+bench_gemv                      Gemv_double/256/1                                              18.5        18.8    +1.89% ▲
+bench_gemv                      Gemv_double/256/16                                            127.6       129.2    +1.24% ▲
+bench_gemv                      Gemv_double/32/32                                              33.9        34.0    +0.47%  
+bench_gemv                      Gemv_double/512/512                                         20986.6     21975.7    +4.71% ▲
+bench_gemv                      Gemv_double/8/8                                                 6.7         6.6    -1.64% ▼
+bench_gemv                      Gemv_float/1/1024                                             817.7       816.4    -0.16%  
+bench_gemv                      Gemv_float/1/256                                              163.2       163.3    +0.03%  
+bench_gemv                      Gemv_float/1024/1                                              32.9        33.2    +0.95%  
+bench_gemv                      Gemv_float/1024/1024                                        39439.3     40003.8    +1.43% ▲
+bench_gemv                      Gemv_float/1024/16                                            404.5       407.6    +0.77%  
+bench_gemv                      Gemv_float/128/128                                            327.6       334.4    +2.06% ▲
+bench_gemv                      Gemv_float/16/1024                                            488.2       487.2    -0.22%  
+bench_gemv                      Gemv_float/16/256                                             118.5       118.5    -0.04%  
+bench_gemv                      Gemv_float/256/1                                               11.0        11.0    +0.25%  
+bench_gemv                      Gemv_float/256/16                                              65.3        65.0    -0.52%  
+bench_gemv                      Gemv_float/32/32                                               21.8        22.5    +3.32% ▲
+bench_gemv                      Gemv_float/512/512                                           7762.7      7992.6    +2.96% ▲
+bench_gemv                      Gemv_float/8/8                                                  6.2         6.2    +0.19%  
+
+bench_vecadd                    BM_MatAdd/128                                                 627.3       628.9    +0.25%  
+bench_vecadd                    BM_MatAdd/16                                                    6.9         7.0    +0.56%  
+bench_vecadd                    BM_MatAdd/256                                                2138.8      2119.6    -0.89%  
+bench_vecadd                    BM_MatAdd/32                                                   27.7        28.2    +1.60% ▲
+bench_vecadd                    BM_MatAdd/512                                               16517.0     16543.6    +0.16%  
+bench_vecadd                    BM_MatAdd/64                                                  111.2       111.3    +0.08%  
+bench_vecadd                    BM_MatAdd/8                                                     3.4         3.5    +1.47% ▲
+bench_vecadd                    BM_VecAdd/1024                                                 28.5        28.8    +0.80%  
+bench_vecadd                    BM_VecAdd/1048576                                           63872.9     64543.7    +1.05% ▲
+bench_vecadd                    BM_VecAdd/16384                                               670.0       671.7    +0.26%  
+bench_vecadd                    BM_VecAdd/256                                                   8.5         8.4    -0.57%  
+bench_vecadd                    BM_VecAdd/262144                                            16722.1     16601.3    -0.72%  
+bench_vecadd                    BM_VecAdd/4096                                                112.2       113.7    +1.27% ▲
+bench_vecadd                    BM_VecAdd/64                                                    3.3         3.3    -0.92%  
+bench_vecadd                    BM_VecAdd/65536                                              2280.9      2291.4    +0.46%  
+
+bench_reductions                MatrixNorm_double/1024                                      67735.2     70479.9    +4.05% ▲
+bench_reductions                MatrixNorm_double/128                                         725.1       727.9    +0.38%  
+bench_reductions                MatrixNorm_double/256                                        2783.3      2792.4    +0.33%  
+bench_reductions                MatrixNorm_double/32                                           42.8        43.2    +0.97%  
+bench_reductions                MatrixNorm_double/512                                       16645.8     17006.1    +2.16% ▲
+bench_reductions                MatrixNorm_double/64                                          171.1       172.3    +0.68%  
+bench_reductions                MatrixNorm_double/8                                             3.1         3.1    +0.27%  
+bench_reductions                MatrixNorm_float/1024                                       36758.9     37450.7    +1.88% ▲
+bench_reductions                MatrixNorm_float/128                                          364.4       367.4    +0.83%  
+bench_reductions                MatrixNorm_float/256                                         1455.9      1475.0    +1.32% ▲
+bench_reductions                MatrixNorm_float/32                                            22.0        21.0    -4.59% ▼
+bench_reductions                MatrixNorm_float/512                                         6893.7      7424.3    +7.70% ▲
+bench_reductions                MatrixNorm_float/64                                            86.4        88.2    +2.04% ▲
+bench_reductions                MatrixNorm_float/8                                              2.0         2.0    -2.65% ▼
+bench_reductions                MatrixSum_double/1024                                       64291.9     69068.9    +7.43% ▲
+bench_reductions                MatrixSum_double/128                                          651.6       685.3    +5.18% ▲
+bench_reductions                MatrixSum_double/256                                         2623.1      2714.8    +3.50% ▲
+bench_reductions                MatrixSum_double/32                                            31.8        32.3    +1.61% ▲
+bench_reductions                MatrixSum_double/512                                        16318.9     16718.2    +2.45% ▲
+bench_reductions                MatrixSum_double/64                                           151.6       152.7    +0.69%  
+bench_reductions                MatrixSum_double/8                                              1.9         2.0    +1.45% ▲
+bench_reductions                MatrixSum_float/1024                                        37214.6     37025.9    -0.51%  
+bench_reductions                MatrixSum_float/128                                           337.8       341.1    +0.99%  
+bench_reductions                MatrixSum_float/256                                          1381.5      1386.4    +0.35%  
+bench_reductions                MatrixSum_float/32                                             14.9        15.1    +0.95%  
+bench_reductions                MatrixSum_float/512                                          6906.3      6701.1    -2.97% ▼
+bench_reductions                MatrixSum_float/64                                             70.5        71.6    +1.47% ▲
+bench_reductions                MatrixSum_float/8                                               1.2         1.3    +1.44% ▲
+bench_reductions                VectorLpNorm1_double/1024                                      37.1        36.7    -1.04% ▼
+bench_reductions                VectorLpNorm1_double/1048576                                63875.1     67973.2    +6.42% ▲
+bench_reductions                VectorLpNorm1_double/16384                                    723.0       723.4    +0.05%  
+bench_reductions                VectorLpNorm1_double/256                                        8.2         8.3    +0.50%  
+bench_reductions                VectorLpNorm1_double/262144                                 16405.3     16641.1    +1.44% ▲
+bench_reductions                VectorLpNorm1_double/4096                                     163.7       161.9    -1.07% ▼
+bench_reductions                VectorLpNorm1_double/64                                         2.2         2.2    +0.44%  
+bench_reductions                VectorLpNorm1_double/65536                                   2844.0      2824.5    -0.68%  
+bench_reductions                VectorLpNorm1_float/1024                                       18.0        18.1    +0.67%  
+bench_reductions                VectorLpNorm1_float/1048576                                 37134.4     37573.2    +1.18% ▲
+bench_reductions                VectorLpNorm1_float/16384                                     374.5       376.3    +0.47%  
+bench_reductions                VectorLpNorm1_float/256                                         4.4         4.4    +0.70%  
+bench_reductions                VectorLpNorm1_float/262144                                   6997.6      6929.1    -0.98%  
+bench_reductions                VectorLpNorm1_float/4096                                       78.1        78.7    +0.75%  
+bench_reductions                VectorLpNorm1_float/64                                          1.5         1.5    +1.69% ▲
+bench_reductions                VectorLpNorm1_float/65536                                    1451.3      1481.2    +2.06% ▲
+bench_reductions                VectorLpNormInf_double/1024                                    30.9        31.7    +2.41% ▲
+bench_reductions                VectorLpNormInf_double/1048576                              63801.8     76956.0   +20.62% ▲
+bench_reductions                VectorLpNormInf_double/16384                                  645.0       667.2    +3.44% ▲
+bench_reductions                VectorLpNormInf_double/256                                      7.8         7.9    +0.91%  
+bench_reductions                VectorLpNormInf_double/262144                               16253.4     17368.8    +6.86% ▲
+bench_reductions                VectorLpNormInf_double/4096                                   143.6       125.1   -12.90% ▼
+bench_reductions                VectorLpNormInf_double/64                                       2.2         2.2    +0.66%  
+bench_reductions                VectorLpNormInf_double/65536                                 2343.7      2612.6   +11.47% ▲
+bench_reductions                VectorLpNormInf_float/1024                                     16.1        16.0    -0.82%  
+bench_reductions                VectorLpNormInf_float/1048576                               36338.5     37060.4    +1.99% ▲
+bench_reductions                VectorLpNormInf_float/16384                                   321.9       322.3    +0.12%  
+bench_reductions                VectorLpNormInf_float/256                                       4.3         4.2    -0.88%  
+bench_reductions                VectorLpNormInf_float/262144                                 6860.2      6380.0    -7.00% ▼
+bench_reductions                VectorLpNormInf_float/4096                                     62.6        67.9    +8.41% ▲
+bench_reductions                VectorLpNormInf_float/64                                        1.5         1.5    +0.77%  
+bench_reductions                VectorLpNormInf_float/65536                                  1297.3      1304.9    +0.58%  
+bench_reductions                VectorMaxCoeff_double/1024                                     32.1        32.1    -0.25%  
+bench_reductions                VectorMaxCoeff_double/1048576                               66729.5     68938.2    +3.31% ▲
+bench_reductions                VectorMaxCoeff_double/16384                                   635.6       634.3    -0.20%  
+bench_reductions                VectorMaxCoeff_double/256                                       7.6         7.6    +0.59%  
+bench_reductions                VectorMaxCoeff_double/262144                                16539.0     16565.6    +0.16%  
+bench_reductions                VectorMaxCoeff_double/4096                                    141.8       142.5    +0.48%  
+bench_reductions                VectorMaxCoeff_double/64                                        2.1         2.1    +0.57%  
+bench_reductions                VectorMaxCoeff_double/65536                                  2214.0      2328.5    +5.17% ▲
+bench_reductions                VectorMaxCoeff_float/1024                                      16.0        16.2    +0.83%  
+bench_reductions                VectorMaxCoeff_float/1048576                                36554.6     37328.2    +2.12% ▲
+bench_reductions                VectorMaxCoeff_float/16384                                    316.0       324.2    +2.60% ▲
+bench_reductions                VectorMaxCoeff_float/256                                        4.1         4.1    +0.21%  
+bench_reductions                VectorMaxCoeff_float/262144                                  6835.6      6504.2    -4.85% ▼
+bench_reductions                VectorMaxCoeff_float/4096                                      69.0        71.4    +3.46% ▲
+bench_reductions                VectorMaxCoeff_float/64                                         1.3         1.3    -0.11%  
+bench_reductions                VectorMaxCoeff_float/65536                                   1251.9      1291.2    +3.14% ▲
+bench_reductions                VectorMean_double/1024                                         32.5        33.6    +3.32% ▲
+bench_reductions                VectorMean_double/1048576                                   64198.6     69515.6    +8.28% ▲
+bench_reductions                VectorMean_double/16384                                       822.6       721.9   -12.25% ▼
+bench_reductions                VectorMean_double/256                                           7.7         7.6    -0.08%  
+bench_reductions                VectorMean_double/262144                                    16330.8     16702.5    +2.28% ▲
+bench_reductions                VectorMean_double/4096                                        153.4       152.7    -0.51%  
+bench_reductions                VectorMean_double/64                                            2.4         2.3    -0.59%  
+bench_reductions                VectorMean_double/65536                                      2884.4      2848.8    -1.23% ▼
+bench_reductions                VectorMean_float/1024                                          15.3        15.7    +2.11% ▲
+bench_reductions                VectorMean_float/1048576                                    37580.7     37464.7    -0.31%  
+bench_reductions                VectorMean_float/16384                                        377.4       383.0    +1.49% ▲
+bench_reductions                VectorMean_float/256                                            4.2         4.2    +1.81% ▲
+bench_reductions                VectorMean_float/262144                                      6896.7      6784.1    -1.63% ▼
+bench_reductions                VectorMean_float/4096                                          72.2        72.5    +0.45%  
+bench_reductions                VectorMean_float/64                                             1.6         1.6    +1.93% ▲
+bench_reductions                VectorMean_float/65536                                       1524.5      1549.3    +1.62% ▲
+bench_reductions                VectorMinCoeff_double/1024                                     32.1        32.2    +0.13%  
+bench_reductions                VectorMinCoeff_double/1048576                               64193.1     67803.0    +5.62% ▲
+bench_reductions                VectorMinCoeff_double/16384                                   636.1       627.6    -1.35% ▼
+bench_reductions                VectorMinCoeff_double/256                                       7.7         7.7    -0.49%  
+bench_reductions                VectorMinCoeff_double/262144                                16256.2     16575.8    +1.97% ▲
+bench_reductions                VectorMinCoeff_double/4096                                    138.7       139.3    +0.46%  
+bench_reductions                VectorMinCoeff_double/64                                        2.1         2.1    -1.14% ▼
+bench_reductions                VectorMinCoeff_double/65536                                  2196.2      2327.2    +5.97% ▲
+bench_reductions                VectorMinCoeff_float/1024                                      16.1        16.0    -0.47%  
+bench_reductions                VectorMinCoeff_float/1048576                                37091.7     37240.6    +0.40%  
+bench_reductions                VectorMinCoeff_float/16384                                    319.3       321.2    +0.59%  
+bench_reductions                VectorMinCoeff_float/256                                        4.1         4.1    +0.15%  
+bench_reductions                VectorMinCoeff_float/262144                                  7046.8      6523.1    -7.43% ▼
+bench_reductions                VectorMinCoeff_float/4096                                      69.6        64.3    -7.59% ▼
+bench_reductions                VectorMinCoeff_float/64                                         1.3         1.3    -0.67%  
+bench_reductions                VectorMinCoeff_float/65536                                   1280.8      1277.2    -0.29%  
+bench_reductions                VectorNorm_double/1024                                         43.3        43.6    +0.50%  
+bench_reductions                VectorNorm_double/1048576                                   67634.2     68943.0    +1.94% ▲
+bench_reductions                VectorNorm_double/16384                                       804.6       740.1    -8.01% ▼
+bench_reductions                VectorNorm_double/256                                          10.9        11.1    +1.48% ▲
+bench_reductions                VectorNorm_double/262144                                    16731.0     16979.3    +1.48% ▲
+bench_reductions                VectorNorm_double/4096                                        178.0       178.8    +0.46%  
+bench_reductions                VectorNorm_double/64                                            3.3         3.3    +0.85%  
+bench_reductions                VectorNorm_double/65536                                      3356.5      2886.4   -14.01% ▼
+bench_reductions                VectorNorm_float/1024                                          21.4        21.6    +1.37% ▲
+bench_reductions                VectorNorm_float/1048576                                    36636.9     37648.4    +2.76% ▲
+bench_reductions                VectorNorm_float/16384                                        405.9       400.5    -1.33% ▼
+bench_reductions                VectorNorm_float/256                                            6.2         6.2    +0.08%  
+bench_reductions                VectorNorm_float/262144                                      6883.8      7416.6    +7.74% ▲
+bench_reductions                VectorNorm_float/4096                                          89.2        89.1    -0.10%  
+bench_reductions                VectorNorm_float/64                                             2.1         2.0    -2.33% ▼
+bench_reductions                VectorNorm_float/65536                                       1594.2      1630.7    +2.29% ▲
+bench_reductions                VectorProd_double/1024                                         33.2        31.8    -4.21% ▼
+bench_reductions                VectorProd_double/1048576                                   68446.6     67187.9    -1.84% ▼
+bench_reductions                VectorProd_double/16384                                       692.2       669.5    -3.28% ▼
+bench_reductions                VectorProd_double/256                                           7.2         7.4    +2.25% ▲
+bench_reductions                VectorProd_double/262144                                    16738.7     16544.5    -1.16% ▼
+bench_reductions                VectorProd_double/4096                                        154.5       156.2    +1.10% ▲
+bench_reductions                VectorProd_double/64                                            2.1         2.0    -3.98% ▼
+bench_reductions                VectorProd_double/65536                                      2734.1      2680.5    -1.96% ▼
+bench_reductions                VectorProd_float/1024                                          15.3        15.1    -1.35% ▼
+bench_reductions                VectorProd_float/1048576                                    37313.2     36974.6    -0.91%  
+bench_reductions                VectorProd_float/16384                                        341.7       341.4    -0.08%  
+bench_reductions                VectorProd_float/256                                            3.9         3.9    -0.72%  
+bench_reductions                VectorProd_float/262144                                      7053.4      6525.5    -7.48% ▼
+bench_reductions                VectorProd_float/4096                                          71.9        74.0    +2.92% ▲
+bench_reductions                VectorProd_float/64                                             1.3         1.3    -0.53%  
+bench_reductions                VectorProd_float/65536                                       1392.0      1350.1    -3.01% ▼
+bench_reductions                VectorSquaredNorm_double/1024                                  39.5        40.0    +1.43% ▲
+bench_reductions                VectorSquaredNorm_double/1048576                            67425.7     70274.3    +4.22% ▲
+bench_reductions                VectorSquaredNorm_double/16384                                816.9       814.5    -0.29%  
+bench_reductions                VectorSquaredNorm_double/256                                    9.8         9.7    -0.59%  
+bench_reductions                VectorSquaredNorm_double/262144                             16684.2     17172.9    +2.93% ▲
+bench_reductions                VectorSquaredNorm_double/4096                                 174.4       177.4    +1.74% ▲
+bench_reductions                VectorSquaredNorm_double/64                                     2.6         2.7    +0.88%  
+bench_reductions                VectorSquaredNorm_double/65536                               3420.4      3399.2    -0.62%  
+bench_reductions                VectorSquaredNorm_float/1024                                   20.5        20.7    +0.92%  
+bench_reductions                VectorSquaredNorm_float/1048576                             37372.5     37357.5    -0.04%  
+bench_reductions                VectorSquaredNorm_float/16384                                 377.4       382.5    +1.37% ▲
+bench_reductions                VectorSquaredNorm_float/256                                     5.3         5.4    +0.78%  
+bench_reductions                VectorSquaredNorm_float/262144                               7175.9      7316.2    +1.95% ▲
+bench_reductions                VectorSquaredNorm_float/4096                                   85.5        86.7    +1.36% ▲
+bench_reductions                VectorSquaredNorm_float/64                                      1.7         1.7    -0.34%  
+bench_reductions                VectorSquaredNorm_float/65536                                1480.8      1499.3    +1.25% ▲
+bench_reductions                VectorSum_double/1024                                          33.2        33.2    +0.23%  
+bench_reductions                VectorSum_double/1048576                                    66040.4     71747.3    +8.64% ▲
+bench_reductions                VectorSum_double/16384                                        709.1       713.5    +0.63%  
+bench_reductions                VectorSum_double/256                                            7.3         7.4    +1.45% ▲
+bench_reductions                VectorSum_double/262144                                     16444.3     16756.2    +1.90% ▲
+bench_reductions                VectorSum_double/4096                                         152.1       154.0    +1.27% ▲
+bench_reductions                VectorSum_double/64                                             2.0         2.0    +0.82%  
+bench_reductions                VectorSum_double/65536                                       2794.8      2792.9    -0.07%  
+bench_reductions                VectorSum_float/1024                                           14.9        14.9    +0.09%  
+bench_reductions                VectorSum_float/1048576                                     37097.2     37044.3    -0.14%  
+bench_reductions                VectorSum_float/16384                                         398.5       398.0    -0.14%  
+bench_reductions                VectorSum_float/256                                             3.8         3.8    +0.53%  
+bench_reductions                VectorSum_float/262144                                       7135.8      6667.1    -6.57% ▼
+bench_reductions                VectorSum_float/4096                                           71.8        71.2    -0.79%  
+bench_reductions                VectorSum_float/64                                              1.3         1.3    +0.56%  
+bench_reductions                VectorSum_float/65536                                        1586.6      1608.8    +1.40% ▲
+
+bench_fixed_size                BM_Batch3x3Gemm/100                                           573.3       582.7    +1.64% ▲
+bench_fixed_size                BM_Batch3x3Gemm/1000                                         5939.0      6034.3    +1.60% ▲
+bench_fixed_size                BM_Batch3x3Gemm/10000                                       61323.3     61935.6    +1.00%  
+bench_fixed_size                BM_BatchTransform4xN/1                                          2.0         2.0    +1.62% ▲
+bench_fixed_size                BM_BatchTransform4xN/16                                        15.0        15.2    +1.46% ▲
+bench_fixed_size                BM_BatchTransform4xN/4                                          4.7         4.8    +1.42% ▲
+bench_fixed_size                BM_BatchTransform4xN/64                                        56.6        57.5    +1.50% ▲
+bench_fixed_size                BM_BatchTransform4xN/8                                          8.1         8.3    +1.67% ▲
+bench_fixed_size                FixedDet_2x2                                                    0.2         0.2    +0.04%  
+bench_fixed_size                FixedDet_3x3                                                    0.2         0.2    -0.13%  
+bench_fixed_size                FixedDet_4x4                                                    3.0         3.0    +0.58%  
+bench_fixed_size                FixedGemm_2x2                                                   0.2         0.2    +0.50%  
+bench_fixed_size                FixedGemm_3x3                                                   6.9         7.0    +1.57% ▲
+bench_fixed_size                FixedGemm_4x4                                                   2.2         2.3    +1.77% ▲
+bench_fixed_size                FixedInverse_2x2                                                0.5         0.5    +0.43%  
+bench_fixed_size                FixedInverse_3x3                                                2.0         2.0    -0.61%  
+bench_fixed_size                FixedInverse_4x4                                                6.0         6.0    +0.59%  
+
+bench_fixed_size_double         BM_Batch3x3Gemm/100                                           267.4       271.8    +1.61% ▲
+bench_fixed_size_double         BM_Batch3x3Gemm/1000                                         2679.5      2702.5    +0.86%  
+bench_fixed_size_double         BM_Batch3x3Gemm/10000                                       27762.2     28071.9    +1.12% ▲
+bench_fixed_size_double         BM_BatchTransform4xN/1                                          2.1         2.1    -0.70%  
+bench_fixed_size_double         BM_BatchTransform4xN/16                                        15.1        15.3    +1.45% ▲
+bench_fixed_size_double         BM_BatchTransform4xN/4                                          4.7         4.8    +0.88%  
+bench_fixed_size_double         BM_BatchTransform4xN/64                                        58.1        58.6    +0.84%  
+bench_fixed_size_double         BM_BatchTransform4xN/8                                          8.2         8.9    +8.81% ▲
+bench_fixed_size_double         FixedDet_2x2                                                    0.2         0.2    +0.14%  
+bench_fixed_size_double         FixedDet_3x3                                                    1.1         1.1    +1.71% ▲
+bench_fixed_size_double         FixedDet_4x4                                                    3.1         3.0    -0.51%  
+bench_fixed_size_double         FixedGemm_2x2                                                   0.3         0.3    +0.65%  
+bench_fixed_size_double         FixedGemm_3x3                                                   2.6         2.6    +0.56%  
+bench_fixed_size_double         FixedGemm_4x4                                                   2.4         2.4    +0.55%  
+bench_fixed_size_double         FixedInverse_2x2                                                0.4         0.4    +0.43%  
+bench_fixed_size_double         FixedInverse_3x3                                                4.4         4.4    +0.13%  
+bench_fixed_size_double         FixedInverse_4x4                                                7.2         7.3    +1.58% ▲
+
+bench_trsm                      TRSM_Left_double_Lower/256/1                                 7935.8      8017.7    +1.03% ▲
+bench_trsm                      TRSM_Left_double_Lower/256/16                               15704.6     15914.0    +1.33% ▲
+bench_trsm                      TRSM_Left_double_Lower/256/64                               67457.6     68039.5    +0.86%  
+bench_trsm                      TRSM_Left_double_Lower/512/1                                39199.8     39861.5    +1.69% ▲
+bench_trsm                      TRSM_Left_double_Lower/512/16                               67026.8     68321.1    +1.93% ▲
+bench_trsm                      TRSM_Left_double_Lower/512/64                              271500.5    275576.3    +1.50% ▲
+bench_trsm                      TRSM_Left_double_Lower/64/1                                   649.0       656.1    +1.08% ▲
+bench_trsm                      TRSM_Left_double_Lower/64/16                                 1207.2      1233.0    +2.14% ▲
+bench_trsm                      TRSM_Left_double_Lower/64/64                                 4720.7      4791.1    +1.49% ▲
+bench_trsm                      TRSM_Left_float_Lower/256/1                                  7907.9      8014.8    +1.35% ▲
+bench_trsm                      TRSM_Left_float_Lower/256/16                                 8131.1      8247.5    +1.43% ▲
+bench_trsm                      TRSM_Left_float_Lower/256/64                                32145.5     32693.2    +1.70% ▲
+bench_trsm                      TRSM_Left_float_Lower/512/1                                 30019.2     30564.0    +1.81% ▲
+bench_trsm                      TRSM_Left_float_Lower/512/16                                31127.9     31619.5    +1.58% ▲
+bench_trsm                      TRSM_Left_float_Lower/512/64                               134503.3    139319.8    +3.58% ▲
+bench_trsm                      TRSM_Left_float_Lower/64/1                                    672.1       671.8    -0.06%  
+bench_trsm                      TRSM_Left_float_Lower/64/16                                   694.8       705.2    +1.49% ▲
+bench_trsm                      TRSM_Left_float_Lower/64/64                                  2439.9      2459.3    +0.79%  
+bench_trsm                      TRSM_Right_double_Lower/256/1                                7867.1      7826.7    -0.51%  
+bench_trsm                      TRSM_Right_double_Lower/256/16                              15003.0     14913.1    -0.60%  
+bench_trsm                      TRSM_Right_double_Lower/256/64                              58727.3     59490.0    +1.30% ▲
+bench_trsm                      TRSM_Right_double_Lower/512/1                               31126.7     30747.2    -1.22% ▼
+bench_trsm                      TRSM_Right_double_Lower/512/16                              60374.5     59923.4    -0.75%  
+bench_trsm                      TRSM_Right_double_Lower/512/64                             235760.5    238783.2    +1.28% ▲
+bench_trsm                      TRSM_Right_double_Lower/64/1                                  606.3       600.8    -0.91%  
+bench_trsm                      TRSM_Right_double_Lower/64/16                                1037.5      1031.1    -0.62%  
+bench_trsm                      TRSM_Right_double_Lower/64/64                                4005.0      3972.1    -0.82%  
+bench_trsm                      TRSM_Right_float_Lower/256/1                                 7803.0      7836.0    +0.42%  
+bench_trsm                      TRSM_Right_float_Lower/256/16                                7598.3      7630.0    +0.42%  
+bench_trsm                      TRSM_Right_float_Lower/256/64                               29265.2     29365.4    +0.34%  
+bench_trsm                      TRSM_Right_float_Lower/512/1                                29729.9     29902.7    +0.58%  
+bench_trsm                      TRSM_Right_float_Lower/512/16                               29682.5     29945.1    +0.88%  
+bench_trsm                      TRSM_Right_float_Lower/512/64                              117387.7    116958.2    -0.37%  
+bench_trsm                      TRSM_Right_float_Lower/64/1                                   596.7       597.4    +0.12%  
+bench_trsm                      TRSM_Right_float_Lower/64/16                                  573.4       573.0    -0.07%  
+bench_trsm                      TRSM_Right_float_Lower/64/64                                 1940.6      1946.2    +0.28%  
+bench_trsm                      TRSV_double_Lower/128                                         885.6       982.7   +10.96% ▲
+bench_trsm                      TRSV_double_Lower/32                                          187.7       199.7    +6.44% ▲
+bench_trsm                      TRSV_double_Lower/512                                       10402.6     11068.0    +6.40% ▲
+bench_trsm                      TRSV_float_Lower/128                                          754.9       887.9   +17.61% ▲
+bench_trsm                      TRSV_float_Lower/32                                           167.1       185.8   +11.15% ▲
+bench_trsm                      TRSV_float_Lower/512                                         5766.2      6849.2   +18.78% ▲
+
+bench_trmv                      TRMV_double_Lower/1024                                      38573.3     39622.2    +2.72% ▲
+bench_trmv                      TRMV_double_Lower/128                                         613.1       620.1    +1.13% ▲
+bench_trmv                      TRMV_double_Lower/16                                           40.0        40.3    +0.56%  
+bench_trmv                      TRMV_double_Lower/2048                                     310812.0    321935.3    +3.58% ▲
+bench_trmv                      TRMV_double_Lower/256                                        2098.1      2153.7    +2.65% ▲
+bench_trmv                      TRMV_double_Lower/32                                           87.0        88.0    +1.08% ▲
+bench_trmv                      TRMV_double_Lower/512                                        9860.9      9683.6    -1.80% ▼
+bench_trmv                      TRMV_double_Lower/64                                          211.8       213.0    +0.57%  
+bench_trmv                      TRMV_double_Lower/8                                            19.8        19.5    -1.58% ▼
+bench_trmv                      TRMV_double_UnitLower/1024                                  38480.5     38430.8    -0.13%  
+bench_trmv                      TRMV_double_UnitLower/128                                     589.4       589.7    +0.05%  
+bench_trmv                      TRMV_double_UnitLower/16                                       39.4        39.7    +0.68%  
+bench_trmv                      TRMV_double_UnitLower/2048                                 314347.7    319882.7    +1.76% ▲
+bench_trmv                      TRMV_double_UnitLower/256                                    2063.4      2070.9    +0.36%  
+bench_trmv                      TRMV_double_UnitLower/32                                       83.3        85.0    +2.04% ▲
+bench_trmv                      TRMV_double_UnitLower/512                                    9752.1      9519.9    -2.38% ▼
+bench_trmv                      TRMV_double_UnitLower/64                                      202.9       203.1    +0.10%  
+bench_trmv                      TRMV_double_UnitLower/8                                        19.7        19.8    +0.71%  
+bench_trmv                      TRMV_double_UnitUpper/1024                                  39773.1     39416.2    -0.90%  
+bench_trmv                      TRMV_double_UnitUpper/128                                     601.8       596.4    -0.91%  
+bench_trmv                      TRMV_double_UnitUpper/16                                       38.6        38.3    -0.91%  
+bench_trmv                      TRMV_double_UnitUpper/2048                                 320043.1    370058.3   +15.63% ▲
+bench_trmv                      TRMV_double_UnitUpper/256                                    2097.4      2084.2    -0.63%  
+bench_trmv                      TRMV_double_UnitUpper/32                                       82.9        83.5    +0.67%  
+bench_trmv                      TRMV_double_UnitUpper/512                                    9457.9     10050.7    +6.27% ▲
+bench_trmv                      TRMV_double_UnitUpper/64                                      210.5       209.4    -0.53%  
+bench_trmv                      TRMV_double_UnitUpper/8                                        19.4        19.5    +0.80%  
+bench_trmv                      TRMV_double_Upper/1024                                      39159.5     39470.1    +0.79%  
+bench_trmv                      TRMV_double_Upper/128                                         609.5       612.0    +0.42%  
+bench_trmv                      TRMV_double_Upper/16                                           39.4        39.7    +0.65%  
+bench_trmv                      TRMV_double_Upper/2048                                     306240.0    333125.3    +8.78% ▲
+bench_trmv                      TRMV_double_Upper/256                                        2095.6      2108.8    +0.63%  
+bench_trmv                      TRMV_double_Upper/32                                           83.3        84.4    +1.36% ▲
+bench_trmv                      TRMV_double_Upper/512                                        9552.7      9869.0    +3.31% ▲
+bench_trmv                      TRMV_double_Upper/64                                          209.3       210.5    +0.57%  
+bench_trmv                      TRMV_double_Upper/8                                            20.4        20.5    +0.58%  
+bench_trmv                      TRMV_float_Lower/1024                                       27333.3     26215.2    -4.09% ▼
+bench_trmv                      TRMV_float_Lower/128                                          540.6       535.6    -0.92%  
+bench_trmv                      TRMV_float_Lower/16                                            45.4        44.8    -1.32% ▼
+bench_trmv                      TRMV_float_Lower/2048                                       96811.3     93008.6    -3.93% ▼
+bench_trmv                      TRMV_float_Lower/256                                         1555.1      1562.9    +0.51%  
+bench_trmv                      TRMV_float_Lower/32                                            94.8        93.6    -1.24% ▼
+bench_trmv                      TRMV_float_Lower/512                                         5698.9      5216.7    -8.46% ▼
+bench_trmv                      TRMV_float_Lower/64                                           209.6       210.2    +0.29%  
+bench_trmv                      TRMV_float_Lower/8                                             22.2        22.6    +1.54% ▲
+bench_trmv                      TRMV_float_UnitLower/1024                                   27241.0     26973.9    -0.98%  
+bench_trmv                      TRMV_float_UnitLower/128                                      530.8       542.9    +2.28% ▲
+bench_trmv                      TRMV_float_UnitLower/16                                        44.1        44.5    +0.73%  
+bench_trmv                      TRMV_float_UnitLower/2048                                   95510.1     95958.5    +0.47%  
+bench_trmv                      TRMV_float_UnitLower/256                                     1534.1      1565.5    +2.05% ▲
+bench_trmv                      TRMV_float_UnitLower/32                                        92.1        92.5    +0.53%  
+bench_trmv                      TRMV_float_UnitLower/512                                     5441.0      5176.6    -4.86% ▼
+bench_trmv                      TRMV_float_UnitLower/64                                       203.5       211.0    +3.70% ▲
+bench_trmv                      TRMV_float_UnitLower/8                                         22.3        22.8    +2.24% ▲
+bench_trmv                      TRMV_float_UnitUpper/1024                                   20204.3     24021.0   +18.89% ▲
+bench_trmv                      TRMV_float_UnitUpper/128                                      443.3       464.2    +4.72% ▲
+bench_trmv                      TRMV_float_UnitUpper/16                                        37.9        41.0    +8.19% ▲
+bench_trmv                      TRMV_float_UnitUpper/2048                                   87226.6     87823.4    +0.68%  
+bench_trmv                      TRMV_float_UnitUpper/256                                     1250.6      1297.6    +3.76% ▲
+bench_trmv                      TRMV_float_UnitUpper/32                                        77.4        87.3   +12.78% ▲
+bench_trmv                      TRMV_float_UnitUpper/512                                     4432.4      4463.5    +0.70%  
+bench_trmv                      TRMV_float_UnitUpper/64                                       167.4       186.1   +11.20% ▲
+bench_trmv                      TRMV_float_UnitUpper/8                                         19.9        20.4    +2.52% ▲
+bench_trmv                      TRMV_float_Upper/1024                                       20507.4     24302.7   +18.51% ▲
+bench_trmv                      TRMV_float_Upper/128                                          462.5       473.8    +2.43% ▲
+bench_trmv                      TRMV_float_Upper/16                                            39.6        39.9    +1.00%  
+bench_trmv                      TRMV_float_Upper/2048                                       85229.1     91553.5    +7.42% ▲
+bench_trmv                      TRMV_float_Upper/256                                         1300.0      1329.9    +2.30% ▲
+bench_trmv                      TRMV_float_Upper/32                                            87.0        84.0    -3.49% ▼
+bench_trmv                      TRMV_float_Upper/512                                         4701.7      4525.7    -3.74% ▼
+bench_trmv                      TRMV_float_Upper/64                                           179.8       181.4    +0.93%  
+bench_trmv                      TRMV_float_Upper/8                                             20.3        20.4    +0.34%  
+
+bench_triangular_product        TRMM_Left_double_Lower/1024                              16988986.8  18346262.7    +7.99% ▲
+bench_triangular_product        TRMM_Left_double_Lower/128                                  38644.1     38987.4    +0.89%  
+bench_triangular_product        TRMM_Left_double_Lower/256                                 278590.1    279609.4    +0.37%  
+bench_triangular_product        TRMM_Left_double_Lower/512                                2033478.4   2072286.6    +1.91% ▲
+bench_triangular_product        TRMM_Left_double_Lower/64                                    6261.9      6293.8    +0.51%  
+bench_triangular_product        TRMM_Left_double_Upper/1024                              16915669.5  17261509.9    +2.04% ▲
+bench_triangular_product        TRMM_Left_double_Upper/128                                  38574.3     39146.1    +1.48% ▲
+bench_triangular_product        TRMM_Left_double_Upper/256                                 277355.6    279616.5    +0.82%  
+bench_triangular_product        TRMM_Left_double_Upper/512                                2041020.8   2076415.3    +1.73% ▲
+bench_triangular_product        TRMM_Left_double_Upper/64                                    6263.8      6334.7    +1.13% ▲
+bench_triangular_product        TRMM_Left_float_Lower/1024                                8656390.8   8619707.7    -0.42%  
+bench_triangular_product        TRMM_Left_float_Lower/128                                   23228.2     23582.4    +1.52% ▲
+bench_triangular_product        TRMM_Left_float_Lower/256                                  148974.3    151086.7    +1.42% ▲
+bench_triangular_product        TRMM_Left_float_Lower/512                                 1075967.9   1075817.4    -0.01%  
+bench_triangular_product        TRMM_Left_float_Lower/64                                     4119.1      4127.6    +0.21%  
+bench_triangular_product        TRMM_Left_float_Upper/1024                                8601343.7   8763818.4    +1.89% ▲
+bench_triangular_product        TRMM_Left_float_Upper/128                                   23073.7     23122.5    +0.21%  
+bench_triangular_product        TRMM_Left_float_Upper/256                                  149201.7    149504.7    +0.20%  
+bench_triangular_product        TRMM_Left_float_Upper/512                                 1070202.6   1092099.8    +2.05% ▲
+bench_triangular_product        TRMM_Left_float_Upper/64                                     4072.7      4084.6    +0.29%  
+bench_triangular_product        TRMM_Right_double_Lower/1024                             16344401.4  16446695.8    +0.63%  
+bench_triangular_product        TRMM_Right_double_Lower/128                                 36150.5     36502.1    +0.97%  
+bench_triangular_product        TRMM_Right_double_Lower/256                                266064.5    268329.9    +0.85%  
+bench_triangular_product        TRMM_Right_double_Lower/512                               2003757.2   2048420.9    +2.23% ▲
+bench_triangular_product        TRMM_Right_double_Lower/64                                   5560.1      5621.7    +1.11% ▲
+bench_triangular_product        TRMM_Right_double_Upper/1024                             16998547.1  17182655.0    +1.08% ▲
+bench_triangular_product        TRMM_Right_double_Upper/128                                 36345.7     36219.0    -0.35%  
+bench_triangular_product        TRMM_Right_double_Upper/256                                268348.9    265502.8    -1.06% ▼
+bench_triangular_product        TRMM_Right_double_Upper/512                               2063857.1   2031211.5    -1.58% ▼
+bench_triangular_product        TRMM_Right_double_Upper/64                                   5554.8      5569.1    +0.26%  
+bench_triangular_product        TRMM_Right_float_Lower/1024                               8187634.0   8498791.2    +3.80% ▲
+bench_triangular_product        TRMM_Right_float_Lower/128                                  20584.3     20595.3    +0.05%  
+bench_triangular_product        TRMM_Right_float_Lower/256                                 138120.3    138212.7    +0.07%  
+bench_triangular_product        TRMM_Right_float_Lower/512                                1037499.6   1044861.1    +0.71%  
+bench_triangular_product        TRMM_Right_float_Lower/64                                    3319.7      3337.8    +0.54%  
+bench_triangular_product        TRMM_Right_float_Upper/1024                               8509560.3   8709233.5    +2.35% ▲
+bench_triangular_product        TRMM_Right_float_Upper/128                                  20617.0     20644.9    +0.14%  
+bench_triangular_product        TRMM_Right_float_Upper/256                                 138715.9    139684.5    +0.70%  
+bench_triangular_product        TRMM_Right_float_Upper/512                                1027494.5   1052578.9    +2.44% ▲
+bench_triangular_product        TRMM_Right_float_Upper/64                                    3329.6      3331.1    +0.04%  
+
+bench_selfadjoint_product       RankUpdate_double/128/16                                     4962.7      5000.9    +0.77%  
+bench_selfadjoint_product       RankUpdate_double/128/256                                   74029.5     75019.5    +1.34% ▲
+bench_selfadjoint_product       RankUpdate_double/128/64                                    18972.6     19024.3    +0.27%  
+bench_selfadjoint_product       RankUpdate_double/256/16                                    17327.9     17467.0    +0.80%  
+bench_selfadjoint_product       RankUpdate_double/256/256                                  270805.7    272972.5    +0.80%  
+bench_selfadjoint_product       RankUpdate_double/256/64                                    66595.8     67087.2    +0.74%  
+bench_selfadjoint_product       RankUpdate_double/512/16                                    69050.2     67172.0    -2.72% ▼
+bench_selfadjoint_product       RankUpdate_double/512/256                                 1008644.2   1018862.4    +1.01% ▲
+bench_selfadjoint_product       RankUpdate_double/512/64                                   252749.4    255730.3    +1.18% ▲
+bench_selfadjoint_product       RankUpdate_double/64/16                                      1540.7      1568.6    +1.81% ▲
+bench_selfadjoint_product       RankUpdate_double/64/256                                    22975.6     23184.7    +0.91%  
+bench_selfadjoint_product       RankUpdate_double/64/64                                      5841.5      5849.3    +0.13%  
+bench_selfadjoint_product       RankUpdate_float/128/16                                      3009.0      3016.6    +0.25%  
+bench_selfadjoint_product       RankUpdate_float/128/256                                    43429.7     44017.7    +1.35% ▲
+bench_selfadjoint_product       RankUpdate_float/128/64                                     10901.7     10963.5    +0.57%  
+bench_selfadjoint_product       RankUpdate_float/256/16                                      9727.9      9693.0    -0.36%  
+bench_selfadjoint_product       RankUpdate_float/256/256                                   144548.1    148067.4    +2.43% ▲
+bench_selfadjoint_product       RankUpdate_float/256/64                                     36540.8     36847.8    +0.84%  
+bench_selfadjoint_product       RankUpdate_float/512/16                                     34027.5     34317.5    +0.85%  
+bench_selfadjoint_product       RankUpdate_float/512/256                                   528932.5    532808.3    +0.73%  
+bench_selfadjoint_product       RankUpdate_float/512/64                                    133800.5    134140.6    +0.25%  
+bench_selfadjoint_product       RankUpdate_float/64/16                                       1038.3      1038.5    +0.02%  
+bench_selfadjoint_product       RankUpdate_float/64/256                                     13644.5     13776.2    +0.96%  
+bench_selfadjoint_product       RankUpdate_float/64/64                                       3460.7      3443.8    -0.49%  
+bench_selfadjoint_product       SYMM_Left_double/1024                                    31313423.7  31896644.1    +1.86% ▲
+bench_selfadjoint_product       SYMM_Left_double/128                                        63985.6     64773.9    +1.23% ▲
+bench_selfadjoint_product       SYMM_Left_double/256                                       490380.9    488367.5    -0.41%  
+bench_selfadjoint_product       SYMM_Left_double/512                                      3819699.0   3861806.9    +1.10% ▲
+bench_selfadjoint_product       SYMM_Left_double/64                                          8688.9      8759.2    +0.81%  
+bench_selfadjoint_product       SYMM_Left_float/1024                                     15162481.0  15286161.4    +0.82%  
+bench_selfadjoint_product       SYMM_Left_float/128                                         31765.6     32098.0    +1.05% ▲
+bench_selfadjoint_product       SYMM_Left_float/256                                        256447.2    258820.5    +0.93%  
+bench_selfadjoint_product       SYMM_Left_float/512                                       1891761.1   1905225.4    +0.71%  
+bench_selfadjoint_product       SYMM_Left_float/64                                           4414.7      4486.4    +1.62% ▲
+bench_selfadjoint_product       SYMM_Right_double/1024                                   31633335.9  32010692.0    +1.19% ▲
+bench_selfadjoint_product       SYMM_Right_double/128                                       62330.7     62701.3    +0.59%  
+bench_selfadjoint_product       SYMM_Right_double/256                                      485787.0    485319.1    -0.10%  
+bench_selfadjoint_product       SYMM_Right_double/512                                     3819352.7   3853814.3    +0.90%  
+bench_selfadjoint_product       SYMM_Right_double/64                                         8438.9      8446.9    +0.09%  
+bench_selfadjoint_product       SYMM_Right_float/1024                                    15227232.8  15321116.2    +0.62%  
+bench_selfadjoint_product       SYMM_Right_float/128                                        31383.0     31751.0    +1.17% ▲
+bench_selfadjoint_product       SYMM_Right_float/256                                       240798.9    244540.7    +1.55% ▲
+bench_selfadjoint_product       SYMM_Right_float/512                                      1879660.6   1904209.4    +1.31% ▲
+bench_selfadjoint_product       SYMM_Right_float/64                                          4312.9      4388.7    +1.76% ▲
+
+bench_dot                       Dot_cdouble/1024                                              200.3       201.9    +0.82%  
+bench_dot                       Dot_cdouble/1048576                                        607010.8    591717.3    -2.52% ▼
+bench_dot                       Dot_cdouble/16384                                            3207.8      3226.4    +0.58%  
+bench_dot                       Dot_cdouble/256                                                51.9        51.8    -0.20%  
+bench_dot                       Dot_cdouble/262144                                          75530.4     69072.6    -8.55% ▼
+bench_dot                       Dot_cdouble/4096                                              805.1       806.4    +0.16%  
+bench_dot                       Dot_cdouble/64                                                 14.0        15.3    +9.28% ▲
+bench_dot                       Dot_cdouble/65536                                           16911.4     16947.9    +0.22%  
+bench_dot                       Dot_cfloat/1024                                                88.3        89.2    +1.00%  
+bench_dot                       Dot_cfloat/1048576                                         192374.7    222690.5   +15.76% ▲
+bench_dot                       Dot_cfloat/16384                                             1363.0      1375.4    +0.91%  
+bench_dot                       Dot_cfloat/256                                                 24.9        25.0    +0.05%  
+bench_dot                       Dot_cfloat/262144                                           35694.8     36443.2    +2.10% ▲
+bench_dot                       Dot_cfloat/4096                                               345.6       349.5    +1.12% ▲
+bench_dot                       Dot_cfloat/64                                                   6.8         6.8    +0.97%  
+bench_dot                       Dot_cfloat/65536                                             6885.8      6647.2    -3.46% ▼
+bench_dot                       Dot_double/1024                                                55.1        55.3    +0.49%  
+bench_dot                       Dot_double/1048576                                         161168.6    160179.0    -0.61%  
+bench_dot                       Dot_double/16384                                             1189.7      1206.5    +1.41% ▲
+bench_dot                       Dot_double/256                                                 13.8        14.3    +3.33% ▲
+bench_dot                       Dot_double/262144                                           36150.7     36312.9    +0.45%  
+bench_dot                       Dot_double/4096                                               304.6       296.5    -2.65% ▼
+bench_dot                       Dot_double/64                                                   3.5         3.6    +1.09% ▲
+bench_dot                       Dot_double/65536                                             5666.9      6561.4   +15.78% ▲
+bench_dot                       Dot_float/1024                                                 27.6        27.6    +0.06%  
+bench_dot                       Dot_float/1048576                                           64164.1     63161.7    -1.56% ▼
+bench_dot                       Dot_float/16384                                               602.5       604.7    +0.38%  
+bench_dot                       Dot_float/256                                                   7.1         7.0    -0.74%  
+bench_dot                       Dot_float/262144                                            16230.0     16567.9    +2.08% ▲
+bench_dot                       Dot_float/4096                                                109.8       110.8    +0.85%  
+bench_dot                       Dot_float/64                                                    2.0         2.0    +1.19% ▲
+bench_dot                       Dot_float/65536                                              1997.3      2029.0    +1.59% ▲
+bench_dot                       SquaredNorm_double/1024                                        40.0        40.0    +0.05%  
+bench_dot                       SquaredNorm_double/1048576                                  79659.1     71832.5    -9.83% ▼
+bench_dot                       SquaredNorm_double/16384                                      754.6       753.5    -0.14%  
+bench_dot                       SquaredNorm_double/256                                          9.7        10.1    +4.03% ▲
+bench_dot                       SquaredNorm_double/262144                                   16949.8     17529.8    +3.42% ▲
+bench_dot                       SquaredNorm_double/4096                                       176.7       175.9    -0.41%  
+bench_dot                       SquaredNorm_double/64                                           2.7         2.7    +1.31% ▲
+bench_dot                       SquaredNorm_double/65536                                     2921.8      2931.3    +0.33%  
+bench_dot                       SquaredNorm_float/1024                                         20.6        20.8    +0.67%  
+bench_dot                       SquaredNorm_float/1048576                                   38066.8     39128.3    +2.79% ▲
+bench_dot                       SquaredNorm_float/16384                                       406.3       410.1    +0.93%  
+bench_dot                       SquaredNorm_float/256                                           5.4         5.4    +0.66%  
+bench_dot                       SquaredNorm_float/262144                                     6783.2      7661.6   +12.95% ▲
+bench_dot                       SquaredNorm_float/4096                                         86.0        86.7    +0.84%  
+bench_dot                       SquaredNorm_float/64                                            1.7         1.7    +0.77%  
+bench_dot                       SquaredNorm_float/65536                                      1591.5      1613.5    +1.38% ▲
+
+bench_block_ops                 BlockRead_double/1024/128                                    1770.5      1774.5    +0.22%  
+bench_block_ops                 BlockRead_double/1024/16                                       29.7        30.6    +3.10% ▲
+bench_block_ops                 BlockRead_double/1024/64                                      269.8       278.4    +3.22% ▲
+bench_block_ops                 BlockRead_double/256/128                                     1668.0      1743.0    +4.50% ▲
+bench_block_ops                 BlockRead_double/256/16                                        28.4        29.0    +2.32% ▲
+bench_block_ops                 BlockRead_double/256/64                                       274.7       290.2    +5.66% ▲
+bench_block_ops                 BlockRead_double/512/128                                     1760.7      1753.2    -0.43%  
+bench_block_ops                 BlockRead_double/512/16                                        30.4        31.1    +2.35% ▲
+bench_block_ops                 BlockRead_double/512/64                                       267.7       268.1    +0.13%  
+bench_block_ops                 BlockRead_float/1024/128                                      876.8       894.3    +1.99% ▲
+bench_block_ops                 BlockRead_float/1024/16                                        28.3        29.0    +2.44% ▲
+bench_block_ops                 BlockRead_float/1024/64                                       169.1       155.8    -7.86% ▼
+bench_block_ops                 BlockRead_float/256/128                                       788.4       811.6    +2.94% ▲
+bench_block_ops                 BlockRead_float/256/16                                         27.5        28.3    +2.96% ▲
+bench_block_ops                 BlockRead_float/256/64                                        160.3       159.7    -0.36%  
+bench_block_ops                 BlockRead_float/512/128                                       867.1       900.8    +3.89% ▲
+bench_block_ops                 BlockRead_float/512/16                                         27.4        28.1    +2.62% ▲
+bench_block_ops                 BlockRead_float/512/64                                        150.7       268.7   +78.29% ▲
+bench_block_ops                 BlockWrite_double/1024/128                                   1837.1      1802.8    -1.87% ▼
+bench_block_ops                 BlockWrite_double/1024/16                                      42.8        41.6    -2.79% ▼
+bench_block_ops                 BlockWrite_double/1024/64                                     262.9       270.3    +2.80% ▲
+bench_block_ops                 BlockWrite_double/256/128                                    1664.3      1734.3    +4.21% ▲
+bench_block_ops                 BlockWrite_double/256/16                                       33.1        33.5    +0.95%  
+bench_block_ops                 BlockWrite_double/256/64                                      283.1       291.7    +3.06% ▲
+bench_block_ops                 BlockWrite_double/512/128                                    1783.4      1800.2    +0.94%  
+bench_block_ops                 BlockWrite_double/512/16                                       49.5        49.8    +0.60%  
+bench_block_ops                 BlockWrite_double/512/64                                      263.3       270.4    +2.70% ▲
+bench_block_ops                 BlockWrite_float/1024/128                                     831.4       839.9    +1.02% ▲
+bench_block_ops                 BlockWrite_float/1024/16                                       60.9        61.1    +0.28%  
+bench_block_ops                 BlockWrite_float/1024/64                                      177.7       181.1    +1.92% ▲
+bench_block_ops                 BlockWrite_float/256/128                                      845.7       864.0    +2.17% ▲
+bench_block_ops                 BlockWrite_float/256/16                                        58.8        60.2    +2.26% ▲
+bench_block_ops                 BlockWrite_float/256/64                                       174.5       174.0    -0.28%  
+bench_block_ops                 BlockWrite_float/512/128                                      829.6       874.3    +5.38% ▲
+bench_block_ops                 BlockWrite_float/512/16                                        59.0        60.3    +2.25% ▲
+bench_block_ops                 BlockWrite_float/512/64                                       173.8       170.0    -2.17% ▼
+bench_block_ops                 LeftCols_double/1024/128                                    15901.9     16059.3    +0.99%  
+bench_block_ops                 LeftCols_double/1024/16                                      1180.9      1202.3    +1.82% ▲
+bench_block_ops                 LeftCols_double/1024/64                                      5570.8      5671.7    +1.81% ▲
+bench_block_ops                 LeftCols_double/256/128                                      1827.0      1853.5    +1.45% ▲
+bench_block_ops                 LeftCols_double/256/16                                        281.6       288.2    +2.36% ▲
+bench_block_ops                 LeftCols_double/256/64                                       1181.4      1203.7    +1.89% ▲
+bench_block_ops                 LeftCols_double/512/128                                      6104.8      5455.9   -10.63% ▼
+bench_block_ops                 LeftCols_double/512/16                                        592.0       608.0    +2.72% ▲
+bench_block_ops                 LeftCols_double/512/64                                       1826.8      1853.3    +1.45% ▲
+bench_block_ops                 LeftCols_float/1024/128                                      5515.0      5747.2    +4.21% ▲
+bench_block_ops                 LeftCols_float/1024/16                                        592.9       599.8    +1.16% ▲
+bench_block_ops                 LeftCols_float/1024/64                                       1859.2      1853.9    -0.29%  
+bench_block_ops                 LeftCols_float/256/128                                       1198.6      1194.9    -0.31%  
+bench_block_ops                 LeftCols_float/256/16                                          81.7        72.5   -11.22% ▼
+bench_block_ops                 LeftCols_float/256/64                                         592.7       601.5    +1.48% ▲
+bench_block_ops                 LeftCols_float/512/128                                       1866.0      1851.7    -0.77%  
+bench_block_ops                 LeftCols_float/512/16                                         282.1       283.8    +0.59%  
+bench_block_ops                 LeftCols_float/512/64                                        1182.9      1196.5    +1.15% ▲
+bench_block_ops                 TopRows_double/1024/128                                     18376.9     17198.1    -6.41% ▼
+bench_block_ops                 TopRows_double/1024/16                                       2587.8      2647.5    +2.30% ▲
+bench_block_ops                 TopRows_double/1024/64                                       8110.4      8186.4    +0.94%  
+bench_block_ops                 TopRows_double/256/128                                       3555.3      3390.5    -4.63% ▼
+bench_block_ops                 TopRows_double/256/16                                         470.6       475.5    +1.05% ▲
+bench_block_ops                 TopRows_double/256/64                                        1794.9      1789.5    -0.30%  
+bench_block_ops                 TopRows_double/512/128                                       7764.6      7091.0    -8.68% ▼
+bench_block_ops                 TopRows_double/512/16                                         956.4       977.2    +2.17% ▲
+bench_block_ops                 TopRows_double/512/64                                        3712.1      3712.8    +0.02%  
+bench_block_ops                 TopRows_float/1024/128                                       8418.5      8643.3    +2.67% ▲
+bench_block_ops                 TopRows_float/1024/16                                        2025.5      2037.5    +0.59%  
+bench_block_ops                 TopRows_float/1024/64                                        4597.7      4603.9    +0.13%  
+bench_block_ops                 TopRows_float/256/128                                        1726.2      1670.9    -3.21% ▼
+bench_block_ops                 TopRows_float/256/16                                          455.4       454.0    -0.30%  
+bench_block_ops                 TopRows_float/256/64                                          923.2       943.6    +2.21% ▲
+bench_block_ops                 TopRows_float/512/128                                        3658.2      3756.5    +2.69% ▲
+bench_block_ops                 TopRows_float/512/16                                          904.6       932.3    +3.07% ▲
+bench_block_ops                 TopRows_float/512/64                                         1913.1      1913.1    +0.00%  
+
+Total: 693 cases

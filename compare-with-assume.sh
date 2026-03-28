@@ -41,8 +41,18 @@ ALL_BENCHES=(
   bench_block_ops
 )
 
-if [[ $# -gt 0 ]]; then
-  BENCHES=("$@")
+KEEP_BASELINE=false
+ARGS=()
+for arg in "$@"; do
+  if [[ "$arg" == "keep" ]]; then
+    KEEP_BASELINE=true
+  else
+    ARGS+=("$arg")
+  fi
+done
+
+if [[ ${#ARGS[@]} -gt 0 ]]; then
+  BENCHES=("${ARGS[@]}")
 else
   BENCHES=("${ALL_BENCHES[@]}")
 fi
@@ -96,8 +106,12 @@ run_bench() {
 }
 
 echo ""
-echo "==> Running baseline benchmarks (${REPS} reps each)..."
-run_bench "baseline" "$BUILD_BASELINE" "$RESULTS_BASELINE"
+if $KEEP_BASELINE; then
+  echo "==> Keeping existing baseline results (skipping re-run)."
+else
+  echo "==> Running baseline benchmarks (${REPS} reps each)..."
+  run_bench "baseline" "$BUILD_BASELINE" "$RESULTS_BASELINE"
+fi
 
 echo ""
 echo "==> Running assume benchmarks (${REPS} reps each)..."
