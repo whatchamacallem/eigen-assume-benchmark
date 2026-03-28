@@ -43,6 +43,9 @@ template <typename Scalar, typename Index, int StorageOrder, int UpLo, bool Conj
 EIGEN_DONT_INLINE EIGEN_DEVICE_FUNC void
 selfadjoint_matrix_vector_product<Scalar, Index, StorageOrder, UpLo, ConjugateLhs, ConjugateRhs, Version>::run(
     Index size, const Scalar* lhs, Index lhsStride, const Scalar* rhs, Scalar* res, Scalar alpha) {
+  eigen_assert(size > 0);
+  eigen_assert(lhs != nullptr && rhs != nullptr && res != nullptr);
+  eigen_assert(lhsStride >= size);
   typedef typename packet_traits<Scalar>::type Packet;
   typedef typename NumTraits<Scalar>::Real RealScalar;
   const Index PacketSize = sizeof(Packet) / sizeof(Scalar);
@@ -102,6 +105,9 @@ selfadjoint_matrix_vector_product<Scalar, Index, StorageOrder, UpLo, ConjugateLh
       Index endi = FirstTriangular ? j : size;
       Index alignedStart = starti + internal::first_default_aligned(&res[starti], endi - starti);
       Index alignedEnd = alignedStart + ((endi - alignedStart) / PacketSize) * PacketSize;
+      eigen_assert(alignedStart >= starti && alignedStart <= endi);
+      eigen_assert(alignedEnd >= alignedStart && alignedEnd <= endi);
+      eigen_assert((alignedEnd - alignedStart) % PacketSize == 0);
 
       // Handle the 4x4 diagonal block: diagonal elements
       res[j] += cjd.pmul(numext::real(A0[j]), t0);
@@ -211,6 +217,9 @@ selfadjoint_matrix_vector_product<Scalar, Index, StorageOrder, UpLo, ConjugateLh
       Index endi = FirstTriangular ? j : size;
       Index alignedStart = starti + internal::first_default_aligned(&res[starti], endi - starti);
       Index alignedEnd = alignedStart + ((endi - alignedStart) / PacketSize) * PacketSize;
+      eigen_assert(alignedStart >= starti && alignedStart <= endi);
+      eigen_assert(alignedEnd >= alignedStart && alignedEnd <= endi);
+      eigen_assert((alignedEnd - alignedStart) % PacketSize == 0);
 
       res[j] += cjd.pmul(numext::real(A0[j]), t0);
       res[j + 1] += cjd.pmul(numext::real(A1[j + 1]), t1);
@@ -276,6 +285,9 @@ selfadjoint_matrix_vector_product<Scalar, Index, StorageOrder, UpLo, ConjugateLh
       Index endi = FirstTriangular ? j : size;
       Index alignedStart = starti + internal::first_default_aligned(&res[starti], endi - starti);
       Index alignedEnd = alignedStart + ((endi - alignedStart) / PacketSize) * PacketSize;
+      eigen_assert(alignedStart >= starti && alignedStart <= endi);
+      eigen_assert(alignedEnd >= alignedStart && alignedEnd <= endi);
+      eigen_assert((alignedEnd - alignedStart) % PacketSize == 0);
 
       for (Index i = starti; i < alignedStart; ++i) {
         res[i] += cj0.pmul(A0[i], t1);

@@ -22,7 +22,7 @@ namespace internal {
 template <typename IndexType>
 EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE std::make_unsigned_t<IndexType> returnUnsignedIndexValue(const IndexType& idx) {
   EIGEN_STATIC_ASSERT((NumTraits<IndexType>::IsInteger), THIS FUNCTION IS FOR INTEGER TYPES)
-  eigen_internal_assert(idx >= 0 && "Index value is negative and target type is unsigned");
+  eigen_internal_assert(idx >= 0);
   using UnsignedType = std::make_unsigned_t<IndexType>;
   return static_cast<UnsignedType>(idx);
 }
@@ -33,7 +33,7 @@ template <typename IndexDest, typename IndexSrc, bool IndexDestIsInteger = NumTr
           bool IndexSrcIsSigned = NumTraits<IndexSrc>::IsSigned>
 struct convert_index_impl {
   static inline EIGEN_DEVICE_FUNC IndexDest run(const IndexSrc& idx) {
-    eigen_internal_assert(idx <= NumTraits<IndexDest>::highest() && "Index value is too big for target type");
+    eigen_internal_assert(idx <= NumTraits<IndexDest>::highest());
     return static_cast<IndexDest>(idx);
   }
 };

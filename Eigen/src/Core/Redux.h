@@ -226,10 +226,14 @@ struct redux_impl<Func, Evaluator, DefaultTraversal, NoUnrolling> {
   template <typename XprType>
   EIGEN_DEVICE_FUNC static EIGEN_STRONG_INLINE Scalar run(const Evaluator& eval, const Func& func, const XprType& xpr) {
     eigen_assert(xpr.rows() > 0 && xpr.cols() > 0);
+    const Index innerSize = xpr.innerSize();
+    const Index outerSize = xpr.outerSize();
+    eigen_assert(innerSize > 0);
+    eigen_assert(outerSize > 0);
     Scalar res = eval.coeffByOuterInner(0, 0);
-    for (Index i = 1; i < xpr.innerSize(); ++i) res = func(res, eval.coeffByOuterInner(0, i));
-    for (Index i = 1; i < xpr.outerSize(); ++i)
-      for (Index j = 0; j < xpr.innerSize(); ++j) res = func(res, eval.coeffByOuterInner(i, j));
+    for (Index i = 1; i < innerSize; ++i) res = func(res, eval.coeffByOuterInner(0, i));
+    for (Index i = 1; i < outerSize; ++i)
+      for (Index j = 0; j < innerSize; ++j) res = func(res, eval.coeffByOuterInner(i, j));
     return res;
   }
 };
@@ -240,9 +244,10 @@ struct redux_impl<Func, Evaluator, LinearTraversal, NoUnrolling> {
 
   template <typename XprType>
   EIGEN_DEVICE_FUNC static EIGEN_STRONG_INLINE Scalar run(const Evaluator& eval, const Func& func, const XprType& xpr) {
-    eigen_assert(xpr.size() > 0);
+    const Index size = xpr.size();
+    eigen_assert(size > 0);
     Scalar res = eval.coeff(0);
-    for (Index k = 1; k < xpr.size(); ++k) res = func(res, eval.coeff(k));
+    for (Index k = 1; k < size; ++k) res = func(res, eval.coeff(k));
     return res;
   }
 };
@@ -279,6 +284,7 @@ struct redux_impl<Func, Evaluator, LinearVectorizedTraversal, NoUnrolling> {
   template <typename XprType>
   static Scalar run(const Evaluator& eval, const Func& func, const XprType& xpr) {
     const Index size = xpr.size();
+    eigen_assert(size > 0);
 
     constexpr Index packetSize = redux_traits<Func, Evaluator>::PacketSize;
     constexpr int packetAlignment = unpacket_traits<PacketScalar>::alignment;
@@ -288,10 +294,14 @@ struct redux_impl<Func, Evaluator, LinearVectorizedTraversal, NoUnrolling> {
             : int(Unaligned);
     constexpr int alignment = plain_enum_max(alignment0, Evaluator::Alignment);
     const Index alignedStart = internal::first_default_aligned(xpr);
+    eigen_assert(alignedStart >= 0 && alignedStart <= size);
     const Index alignedSize2 = ((size - alignedStart) / (2 * packetSize)) * (2 * packetSize);
     const Index alignedSize = ((size - alignedStart) / (packetSize)) * (packetSize);
     const Index alignedEnd2 = alignedStart + alignedSize2;
     const Index alignedEnd = alignedStart + alignedSize;
+    eigen_assert(alignedSize >= 0 && alignedSize <= size - alignedStart);
+    eigen_assert(alignedSize % packetSize == 0);
+    eigen_assert(alignedEnd >= alignedStart && alignedEnd <= size);
     Scalar res;
     if (alignedSize) {
       PacketScalar packet_res0 = eval.template packet<alignment, PacketScalar>(alignedStart);
@@ -335,6 +345,8 @@ struct redux_impl<Func, Evaluator, SliceVectorizedTraversal, Unrolling> {
     constexpr Index packetSize = redux_traits<Func, Evaluator>::PacketSize;
     const Index innerSize = xpr.innerSize();
     const Index outerSize = xpr.outerSize();
+    eigen_assert(innerSize > 0);
+    eigen_assert(outerSize > 0);
     const Index packetedInnerSize = ((innerSize) / packetSize) * packetSize;
     Scalar res;
     if (packetedInnerSize) {

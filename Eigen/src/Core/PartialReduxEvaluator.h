@@ -101,6 +101,7 @@ struct packetwise_redux_impl<Func, Evaluator, NoUnrolling> {
 
   template <typename PacketType>
   EIGEN_DEVICE_FUNC static PacketType run(const Evaluator& eval, const Func& func, Index size) {
+    eigen_assert(size >= 0);
     if (size == 0) return packetwise_redux_empty_value<PacketType>(func);
 
     const Index size4 = 1 + numext::round_down(size - 1, 4);
@@ -191,6 +192,7 @@ struct evaluator<PartialReduxExpr<ArgType, MemberOp, Direction> >
 
   template <int LoadMode, typename PacketType>
   EIGEN_STRONG_INLINE EIGEN_DEVICE_FUNC PacketType packet(Index idx) const {
+    eigen_assert(m_arg.rows() > 0 && m_arg.cols() > 0);
     static constexpr int PacketSize = internal::unpacket_traits<PacketType>::size;
     static constexpr int PanelRows = Direction == Vertical ? ArgType::RowsAtCompileTime : PacketSize;
     static constexpr int PanelCols = Direction == Vertical ? PacketSize : ArgType::ColsAtCompileTime;
@@ -210,9 +212,11 @@ struct evaluator<PartialReduxExpr<ArgType, MemberOp, Direction> >
     Index numRows = Direction == Vertical ? m_arg.rows() : PacketSize;
     Index numCols = Direction == Vertical ? PacketSize : m_arg.cols();
 
+    const Index outerSize = m_arg.outerSize();
+    eigen_assert(outerSize > 0);
     PanelType panel(m_arg, startRow, startCol, numRows, numCols);
     PanelEvaluator panel_eval(panel);
-    PacketType p = Impl::template run<PacketType>(panel_eval, m_functor.binaryFunc(), m_arg.outerSize());
+    PacketType p = Impl::template run<PacketType>(panel_eval, m_functor.binaryFunc(), outerSize);
     return p;
   }
 
@@ -223,6 +227,8 @@ struct evaluator<PartialReduxExpr<ArgType, MemberOp, Direction> >
 
   template <int LoadMode, typename PacketType>
   EIGEN_STRONG_INLINE EIGEN_DEVICE_FUNC PacketType packetSegment(Index idx, Index begin, Index count) const {
+    eigen_assert(m_arg.rows() > 0 && m_arg.cols() > 0);
+    eigen_assert(count > 0);
     static constexpr int PanelRows = Direction == Vertical ? ArgType::RowsAtCompileTime : Dynamic;
     static constexpr int PanelCols = Direction == Vertical ? Dynamic : ArgType::ColsAtCompileTime;
     using PanelType = Block<const ArgTypeNestedCleaned, PanelRows, PanelCols, true /* InnerPanel */>;
@@ -235,9 +241,11 @@ struct evaluator<PartialReduxExpr<ArgType, MemberOp, Direction> >
     Index numRows = Direction == Vertical ? m_arg.rows() : begin + count;
     Index numCols = Direction == Vertical ? begin + count : m_arg.cols();
 
+    const Index outerSize = m_arg.outerSize();
+    eigen_assert(outerSize > 0);
     PanelType panel(m_arg, startRow, startCol, numRows, numCols);
     PanelEvaluator panel_eval(panel);
-    PacketType p = Impl::template run<PacketType>(panel_eval, m_functor.binaryFunc(), m_arg.outerSize(), begin, count);
+    PacketType p = Impl::template run<PacketType>(panel_eval, m_functor.binaryFunc(), outerSize, begin, count);
     return p;
   }
 

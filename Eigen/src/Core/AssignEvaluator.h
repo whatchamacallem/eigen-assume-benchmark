@@ -346,6 +346,8 @@ struct dense_assignment_loop_impl<Kernel, AllAtOnceTraversal, Unrolling> {
 template <typename Kernel>
 struct dense_assignment_loop_impl<Kernel, DefaultTraversal, NoUnrolling> {
   EIGEN_DEVICE_FUNC static void EIGEN_STRONG_INLINE constexpr run(Kernel& kernel) {
+    eigen_assert(kernel.outerSize() >= 0);
+    eigen_assert(kernel.innerSize() >= 0);
     for (Index outer = 0; outer < kernel.outerSize(); ++outer) {
       for (Index inner = 0; inner < kernel.innerSize(); ++inner) {
         kernel.assignCoeffByOuterInner(outer, inner);
@@ -397,12 +399,14 @@ struct unaligned_dense_assignment_loop<PacketType, DstAlignment, SrcAlignment, /
   template <typename Kernel>
   EIGEN_DEVICE_FUNC static EIGEN_STRONG_INLINE constexpr void run(Kernel& kernel, Index start, Index end) {
     Index count = end - start;
+    eigen_assert(count >= 0);
     eigen_assert(count <= unpacket_traits<PacketType>::size);
     if (count > 0) kernel.template assignPacketSegment<DstAlignment, SrcAlignment, PacketType>(start, 0, count);
   }
   template <typename Kernel>
   EIGEN_DEVICE_FUNC static EIGEN_STRONG_INLINE constexpr void run(Kernel& kernel, Index outer, Index start, Index end) {
     Index count = end - start;
+    eigen_assert(count >= 0);
     eigen_assert(count <= unpacket_traits<PacketType>::size);
     if (count > 0)
       kernel.template assignPacketSegmentByOuterInner<DstAlignment, SrcAlignment, PacketType>(outer, start, 0, count);
@@ -414,11 +418,13 @@ struct unaligned_dense_assignment_loop<PacketType, DstAlignment, SrcAlignment, /
                                        /*Skip*/ false> {
   template <typename Kernel>
   EIGEN_DEVICE_FUNC static EIGEN_STRONG_INLINE constexpr void run(Kernel& kernel, Index start, Index end) {
+    eigen_assert(end >= start);
     for (Index index = start; index < end; ++index) kernel.assignCoeff(index);
   }
   template <typename Kernel>
   EIGEN_DEVICE_FUNC static EIGEN_STRONG_INLINE constexpr void run(Kernel& kernel, Index outer, Index innerStart,
                                                                   Index innerEnd) {
+    eigen_assert(innerEnd >= innerStart);
     for (Index inner = innerStart; inner < innerEnd; ++inner) kernel.assignCoeffByOuterInner(outer, inner);
   }
 };
@@ -486,8 +492,14 @@ struct dense_assignment_loop_impl<Kernel, LinearVectorizedTraversal, NoUnrolling
 
   EIGEN_DEVICE_FUNC static EIGEN_STRONG_INLINE constexpr void run(Kernel& kernel) {
     const Index size = kernel.size();
+    eigen_assert(size >= 0);
+    eigen_assert(size == 0 || kernel.dstDataPtr() != nullptr);
     const Index alignedStart = DstIsAligned ? 0 : first_aligned<Alignment>(kernel.dstDataPtr(), size);
     const Index alignedEnd = alignedStart + numext::round_down(size - alignedStart, PacketSize);
+    eigen_assert(alignedEnd >= alignedStart);
+    eigen_assert((alignedEnd - alignedStart) % PacketSize == 0);
+    eigen_assert(alignedEnd <= size);
+    eigen_assert(size - alignedEnd < PacketSize);
 
     head_loop::run(kernel, 0, alignedStart);
 
@@ -526,6 +538,9 @@ struct dense_assignment_loop_impl<Kernel, InnerVectorizedTraversal, NoUnrolling>
   EIGEN_DEVICE_FUNC static EIGEN_STRONG_INLINE constexpr void run(Kernel& kernel) {
     const Index innerSize = kernel.innerSize();
     const Index outerSize = kernel.outerSize();
+    eigen_assert(innerSize >= 0);
+    eigen_assert(outerSize >= 0);
+    eigen_assert(innerSize % PacketSize == 0);
     for (Index outer = 0; outer < outerSize; ++outer)
       for (Index inner = 0; inner < innerSize; inner += PacketSize)
         kernel.template assignPacketByOuterInner<DstAlignment, SrcAlignment, PacketType>(outer, inner);
@@ -563,6 +578,7 @@ template <typename Kernel>
 struct dense_assignment_loop_impl<Kernel, LinearTraversal, NoUnrolling> {
   EIGEN_DEVICE_FUNC static EIGEN_STRONG_INLINE constexpr void run(Kernel& kernel) {
     const Index size = kernel.size();
+    eigen_assert(size >= 0);
     for (Index i = 0; i < size; ++i) kernel.assignCoeff(i);
   }
 };
@@ -600,11 +616,18 @@ struct dense_assignment_loop_impl<Kernel, SliceVectorizedTraversal, NoUnrolling>
     const Scalar* dst_ptr = kernel.dstDataPtr();
     const Index innerSize = kernel.innerSize();
     const Index outerSize = kernel.outerSize();
+    eigen_assert(innerSize >= 0);
+    eigen_assert(outerSize >= 0);
     const Index alignedStep = Alignable ? (PacketSize - kernel.outerStride() % PacketSize) % PacketSize : 0;
+    eigen_assert(alignedStep >= 0 && alignedStep < PacketSize);
     Index alignedStart = ((!Alignable) || DstIsAligned) ? 0 : internal::first_aligned<Alignment>(dst_ptr, innerSize);
+    eigen_assert(alignedStart >= 0 && alignedStart <= innerSize);
 
     for (Index outer = 0; outer < outerSize; ++outer) {
       const Index alignedEnd = alignedStart + numext::round_down(innerSize - alignedStart, PacketSize);
+      eigen_assert(alignedEnd >= alignedStart && alignedEnd <= innerSize);
+      eigen_assert((alignedEnd - alignedStart) % PacketSize == 0);
+      eigen_assert(innerSize - alignedEnd < PacketSize);
 
       head_loop::run(kernel, outer, 0, alignedStart);
 
@@ -807,9 +830,8 @@ EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE constexpr void resize_if_allowed(DstXprTyp
   if (((dst.rows() != dstRows) || (dst.cols() != dstCols))) {
 #ifdef EIGEN_NO_AUTOMATIC_RESIZING
     eigen_assert(
-        (dst.size() == 0 || (DstXprType::IsVectorAtCompileTime ? (dst.size() == src.size())
-                                                               : (dst.rows() == dstRows && dst.cols() == dstCols))) &&
-        "Size mismatch. Automatic resizing is disabled because EIGEN_NO_AUTOMATIC_RESIZING is defined");
+        dst.size() == 0 || (DstXprType::IsVectorAtCompileTime ? (dst.size() == src.size())
+                                                              : (dst.rows() == dstRows && dst.cols() == dstCols)));
     if (dst.size() == 0) {
       dst.resize(dstRows, dstCols);
     }

@@ -49,6 +49,9 @@ EIGEN_STRONG_INLINE void trsmKernelL<Scalar, Index, Mode, Conjugate, TriStorageO
 
   enum { IsLower = (Mode & Lower) == Lower };
   conj_if<Conjugate> conj;
+  eigen_assert(size > 0 && otherSize > 0);
+  eigen_assert(_tri != nullptr && _other != nullptr);
+  eigen_assert(triStride >= size);
 
   // tr solve
   for (Index k = 0; k < size; ++k) {
@@ -89,6 +92,9 @@ EIGEN_STRONG_INLINE void trsmKernelR<Scalar, Index, Mode, Conjugate, TriStorageO
   typedef const_blas_data_mapper<Scalar, Index, TriStorageOrder> RhsMapper;
   LhsMapper lhs(_other, otherStride, otherIncr);
   RhsMapper rhs(_tri, triStride);
+  eigen_assert(size > 0 && otherSize > 0);
+  eigen_assert(_tri != nullptr && _other != nullptr);
+  eigen_assert(triStride >= size);
 
   enum { RhsStorageOrder = TriStorageOrder, IsLower = (Mode & Lower) == Lower };
   conj_if<Conjugate> conj;
@@ -100,6 +106,8 @@ EIGEN_STRONG_INLINE void trsmKernelR<Scalar, Index, Mode, Conjugate, TriStorageO
     EIGEN_IF_CONSTEXPR(OtherInnerStride == 1 && packet_traits<Scalar>::Vectorizable) {
       using Packet = typename packet_traits<Scalar>::type;
       constexpr Index PS = unpacket_traits<Packet>::size;
+      eigen_assert(PS > 0);
+      eigen_assert(otherSize > 0);
       // Unrolled k3 loop by 4 to reduce r load/store traffic.
       Index k3 = 0;
       for (; k3 + 3 < k; k3 += 4) {

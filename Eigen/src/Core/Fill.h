@@ -81,6 +81,9 @@ template <typename Xpr>
 struct eigen_fill_impl<Xpr, /*use_fill*/ true> {
   using Scalar = typename Xpr::Scalar;
   static EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE void run(Xpr& dst, const Scalar& val) {
+    eigen_assert(dst.size() >= 0);
+    eigen_assert(internal::traits<Xpr>::Alignment == 0 || dst.size() == 0 ||
+                 (std::uintptr_t(dst.data()) % internal::traits<Xpr>::Alignment) == 0);
     const Scalar val_copy = val;
     using std::fill_n;
     fill_n(dst.data(), dst.size(), val_copy);
@@ -123,10 +126,11 @@ struct eigen_zero_impl<Xpr, /*use_memset*/ true> {
   static EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE void run(Xpr& dst) {
     const std::ptrdiff_t num_bytes = dst.size() * static_cast<std::ptrdiff_t>(sizeof(Scalar));
     if (num_bytes <= 0) return;
+    eigen_assert(dst.size() > 0);
     void* dst_ptr = static_cast<void*>(dst.data());
-#ifndef EIGEN_NO_DEBUG
-    eigen_assert((dst_ptr != nullptr));
-#endif
+    eigen_assert(dst_ptr != nullptr);
+    eigen_assert(internal::traits<Xpr>::Alignment == 0 ||
+                 (std::uintptr_t(dst.data()) % internal::traits<Xpr>::Alignment) == 0);
     EIGEN_USING_STD(memset);
     memset(dst_ptr, 0, static_cast<std::size_t>(num_bytes));
   }

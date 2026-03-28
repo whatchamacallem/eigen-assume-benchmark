@@ -62,6 +62,10 @@ struct general_matrix_matrix_product<Index, LhsScalar, LhsStorageOrder, Conjugat
     Index kc = blocking.kc();                    // cache block size along the K direction
     Index mc = (std::min)(rows, blocking.mc());  // cache block size along the M direction
     Index nc = (std::min)(cols, blocking.nc());  // cache block size along the N direction
+    eigen_assert(rows > 0 && cols > 0 && depth > 0);
+    eigen_assert(kc > 0 && mc > 0 && nc > 0);
+    eigen_assert(lhs_ != nullptr && rhs_ != nullptr && res_ != nullptr);
+    eigen_assert(resIncr >= 1);
 
     gemm_pack_lhs<LhsScalar, Index, LhsMapper, Traits::mr, Traits::LhsProgress, typename Traits::LhsPacket4Packing,
                   LhsStorageOrder>
@@ -156,9 +160,11 @@ struct general_matrix_matrix_product<Index, LhsScalar, LhsStorageOrder, Conjugat
       // For each horizontal panel of the rhs, and corresponding panel of the lhs...
       for (Index i2 = 0; i2 < rows; i2 += mc) {
         const Index actual_mc = (std::min)(i2 + mc, rows) - i2;
+        eigen_assert(actual_mc > 0 && actual_mc <= mc);
 
         for (Index k2 = 0; k2 < depth; k2 += kc) {
           const Index actual_kc = (std::min)(k2 + kc, depth) - k2;
+          eigen_assert(actual_kc > 0 && actual_kc <= kc);
 
           // OK, here we have selected one horizontal panel of rhs and one vertical panel of lhs.
           // => Pack lhs's panel into a sequential chunk of memory (L2/L3 caching)

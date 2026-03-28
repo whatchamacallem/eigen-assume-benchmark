@@ -13,10 +13,12 @@ template <typename Scalar>
 static void BM_BlockRead(benchmark::State& state) {
   const Index n = state.range(0);
   const Index block_size = state.range(1);
+  eigen_assert(n > 0 && block_size > 0 && block_size <= n);
   using Mat = Matrix<Scalar, Dynamic, Dynamic>;
   Mat src = Mat::Random(n, n);
   Mat dst(block_size, block_size);
   const Index off = (n - block_size) / 2;
+  eigen_assert(off >= 0 && off + block_size <= n);
   for (auto _ : state) {
     dst = src.block(off, off, block_size, block_size);
     benchmark::DoNotOptimize(dst.data());
@@ -29,10 +31,12 @@ template <typename Scalar>
 static void BM_BlockWrite(benchmark::State& state) {
   const Index n = state.range(0);
   const Index block_size = state.range(1);
+  eigen_assert(n > 0 && block_size > 0 && block_size <= n);
   using Mat = Matrix<Scalar, Dynamic, Dynamic>;
   Mat dst = Mat::Random(n, n);
   Mat src = Mat::Random(block_size, block_size);
   const Index off = (n - block_size) / 2;
+  eigen_assert(off >= 0 && off + block_size <= n);
   for (auto _ : state) {
     dst.block(off, off, block_size, block_size) = src;
     benchmark::DoNotOptimize(dst.data());
@@ -45,6 +49,7 @@ template <typename Scalar>
 static void BM_TopRows(benchmark::State& state) {
   const Index n = state.range(0);
   const Index k = state.range(1);
+  eigen_assert(n > 0 && k > 0 && k <= n);
   using Mat = Matrix<Scalar, Dynamic, Dynamic>;
   Mat src = Mat::Random(n, n);
   Mat dst(k, n);
@@ -60,6 +65,7 @@ template <typename Scalar>
 static void BM_LeftCols(benchmark::State& state) {
   const Index n = state.range(0);
   const Index k = state.range(1);
+  eigen_assert(n > 0 && k > 0 && k <= n);
   using Mat = Matrix<Scalar, Dynamic, Dynamic>;
   Mat src = Mat::Random(n, n);
   Mat dst(n, k);

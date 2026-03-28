@@ -984,6 +984,8 @@
 
 #ifdef EIGEN_INTERNAL_DEBUGGING
 #define eigen_internal_assert(x) eigen_assert(x)
+#elif defined(EIGEN_ASSERT_USE_BUILTIN_ASSUME)
+#define eigen_internal_assert(x) __builtin_assume(!!(x))
 #else
 #define eigen_internal_assert(x) ((void)0)
 #endif

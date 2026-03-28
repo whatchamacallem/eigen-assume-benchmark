@@ -268,7 +268,7 @@ class PlainObjectBase : public internal::dense_xpr_base<Derived>::type {
                                              rows <= MaxRowsAtCompileTime) &&
                  internal::check_implication(ColsAtCompileTime == Dynamic && MaxColsAtCompileTime != Dynamic,
                                              cols <= MaxColsAtCompileTime) &&
-                 rows >= 0 && cols >= 0 && "Invalid sizes when resizing a matrix or array.");
+                 rows >= 0 && cols >= 0);
 #ifndef EIGEN_NO_DEBUG
     internal::check_rows_cols_for_overflow<MaxSizeAtCompileTime, MaxRowsAtCompileTime, MaxColsAtCompileTime>::run(rows,
                                                                                                                   cols);

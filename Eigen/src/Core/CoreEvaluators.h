@@ -194,6 +194,8 @@ struct evaluator<PlainObjectBase<Derived>> : evaluator_base<Derived> {
   EIGEN_DEVICE_FUNC constexpr explicit evaluator(const PlainObjectType& m)
       : m_d(m.data(), IsVectorAtCompileTime ? 0 : m.outerStride()) {
     EIGEN_INTERNAL_CHECK_COST_VALUE(CoeffReadCost);
+    eigen_assert(Alignment == 0 || m.data() == nullptr ||
+                 (std::uintptr_t(m.data()) % Alignment) == 0);
   }
 
   EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE constexpr CoeffReturnType coeff(Index row, Index col) const {
@@ -1522,9 +1524,8 @@ struct block_evaluator<ArgType, BlockRows, BlockCols, InnerPanel, /* HasDirectAc
 
   EIGEN_DEVICE_FUNC constexpr EIGEN_STRONG_INLINE explicit block_evaluator(const XprType& block)
       : mapbase_evaluator<XprType, typename XprType::PlainObject>(block) {
-    eigen_internal_assert((internal::is_constant_evaluated() ||
-                           (std::uintptr_t(block.data()) % plain_enum_max(1, evaluator<XprType>::Alignment)) == 0) &&
-                          "data is not aligned");
+    eigen_internal_assert(internal::is_constant_evaluated() ||
+                          (std::uintptr_t(block.data()) % plain_enum_max(1, evaluator<XprType>::Alignment)) == 0);
   }
 };
 

@@ -30,11 +30,8 @@ namespace internal {
 #if defined(EIGEN_DISABLE_UNALIGNED_ARRAY_ASSERT)
 #define EIGEN_MAKE_UNALIGNED_ARRAY_ASSERT(Alignment)
 #else
-#define EIGEN_MAKE_UNALIGNED_ARRAY_ASSERT(Alignment)                                        \
-  eigen_assert((is_constant_evaluated() || (std::uintptr_t(array) % Alignment == 0)) &&     \
-               "this assertion is explained here: "                                         \
-               "http://eigen.tuxfamily.org/dox-devel/group__TopicUnalignedArrayAssert.html" \
-               " **** READ THIS WEB PAGE !!! ****");
+#define EIGEN_MAKE_UNALIGNED_ARRAY_ASSERT(Alignment) \
+  eigen_assert(is_constant_evaluated() || (std::uintptr_t(array) % Alignment == 0));
 #endif
 
 #if EIGEN_STACK_ALLOCATION_LIMIT

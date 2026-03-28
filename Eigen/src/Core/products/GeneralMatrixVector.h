@@ -182,6 +182,8 @@ general_matrix_vector_product<Index, LhsScalar, LhsMapper, ColMajor, ConjugateLh
                                             ResScalar* res, Index resIncr, RhsScalar alpha) {
   EIGEN_UNUSED_VARIABLE(resIncr);
   eigen_internal_assert(resIncr == 1);
+  eigen_assert(rows > 0 && cols > 0);
+  eigen_assert(res != nullptr);
 
   // The following copy tells the compiler that lhs's attributes are not modified outside this function
   // This helps GCC to generate proper code.
@@ -204,6 +206,7 @@ general_matrix_vector_product<Index, LhsScalar, LhsMapper, ColMajor, ConjugateLh
     HasQuarter = (int)ResPacketSizeQuarter < (int)ResPacketSizeHalf
   };
 
+  eigen_assert(rows > 0 && cols > 0);
   const Index n8 = rows - 8 * ResPacketSize + 1;
   const Index n4 = rows - 4 * ResPacketSize + 1;
   const Index n3 = rows - 3 * ResPacketSize + 1;
@@ -347,6 +350,8 @@ general_matrix_vector_product<Index, LhsScalar, LhsMapper, RowMajor, ConjugateLh
   LhsMapper lhs(alhs);
 
   eigen_internal_assert(rhs.stride() == 1);
+  eigen_assert(rows > 0 && cols > 0);
+  eigen_assert(res != nullptr);
   conj_helper<LhsScalar, RhsScalar, ConjugateLhs, ConjugateRhs> cj;
   conj_helper<LhsPacket, RhsPacket, ConjugateLhs, ConjugateRhs> pcj;
   conj_helper<LhsPacketHalf, RhsPacketHalf, ConjugateLhs, ConjugateRhs> pcj_half;
@@ -375,6 +380,10 @@ general_matrix_vector_product<Index, LhsScalar, LhsMapper, RowMajor, ConjugateLh
   const Index fullColBlockEnd = LhsPacketSize * (UnsignedIndex(cols) / LhsPacketSize);
   const Index halfColBlockEnd = LhsPacketSizeHalf * (UnsignedIndex(cols) / LhsPacketSizeHalf);
   const Index quarterColBlockEnd = LhsPacketSizeQuarter * (UnsignedIndex(cols) / LhsPacketSizeQuarter);
+  eigen_assert(fullColBlockEnd % LhsPacketSize == 0);
+  eigen_assert(halfColBlockEnd % LhsPacketSizeHalf == 0);
+  eigen_assert(quarterColBlockEnd % LhsPacketSizeQuarter == 0);
+  eigen_assert(fullColBlockEnd >= 0 && fullColBlockEnd <= cols);
 
   Index i = 0;
   for (; i < n8; i += 8) {
@@ -637,6 +646,8 @@ general_matrix_vector_product<Index, LhsScalar, LhsMapper, RowMajor, ConjugateLh
                                                        ResScalar alpha) {
   LhsMapper lhs(alhs);
   eigen_internal_assert(rhs.stride() == 1);
+  eigen_assert(rows > 0 && cols > 0);
+  eigen_assert(res != nullptr);
 
   enum {
     LhsPacketSizeHalf = HalfTraits::LhsPacketSize,
@@ -646,6 +657,8 @@ general_matrix_vector_product<Index, LhsScalar, LhsMapper, RowMajor, ConjugateLh
   using UnsignedIndex = std::make_unsigned_t<Index>;
   const Index halfColBlockEnd = LhsPacketSizeHalf * (UnsignedIndex(cols) / LhsPacketSizeHalf);
   const Index quarterColBlockEnd = LhsPacketSizeQuarter * (UnsignedIndex(cols) / LhsPacketSizeQuarter);
+  eigen_assert(halfColBlockEnd % LhsPacketSizeHalf == 0);
+  eigen_assert(quarterColBlockEnd % LhsPacketSizeQuarter == 0);
 
   const Index n8 = lhs.stride() * sizeof(LhsScalar) > 32000 ? 0 : rows - 7;
   const Index n4 = rows - 3;

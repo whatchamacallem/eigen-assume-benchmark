@@ -31,6 +31,9 @@ template <typename LhsScalar, typename RhsScalar, typename Index, int Mode, bool
 struct triangular_solve_vector<LhsScalar, RhsScalar, Index, OnTheLeft, Mode, Conjugate, RowMajor> {
   enum { IsLower = ((Mode & Lower) == Lower) };
   static void run(Index size, const LhsScalar* _lhs, Index lhsStride, RhsScalar* rhs) {
+    eigen_assert(size > 0);
+    eigen_assert(_lhs != nullptr && rhs != nullptr);
+    eigen_assert(lhsStride >= size);
     typedef Map<const Matrix<LhsScalar, Dynamic, Dynamic, RowMajor>, 0, OuterStride<> > LhsMap;
     const LhsMap lhs(_lhs, size, size, OuterStride<>(lhsStride));
 
@@ -77,6 +80,9 @@ template <typename LhsScalar, typename RhsScalar, typename Index, int Mode, bool
 struct triangular_solve_vector<LhsScalar, RhsScalar, Index, OnTheLeft, Mode, Conjugate, ColMajor> {
   enum { IsLower = ((Mode & Lower) == Lower) };
   static void run(Index size, const LhsScalar* _lhs, Index lhsStride, RhsScalar* rhs) {
+    eigen_assert(size > 0);
+    eigen_assert(_lhs != nullptr && rhs != nullptr);
+    eigen_assert(lhsStride >= size);
     typedef Map<const Matrix<LhsScalar, Dynamic, Dynamic, ColMajor>, 0, OuterStride<> > LhsMap;
     const LhsMap lhs(_lhs, size, size, OuterStride<>(lhsStride));
     typedef const_blas_data_mapper<LhsScalar, Index, ColMajor> LhsMapper;

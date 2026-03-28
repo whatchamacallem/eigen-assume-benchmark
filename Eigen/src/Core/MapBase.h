@@ -178,9 +178,8 @@ class MapBase<Derived, ReadOnlyAccessors> : public internal::dense_xpr_base<Deri
     // value:
     const Index minInnerStride = InnerStrideAtCompileTime == Dynamic ? 1 : Index(InnerStrideAtCompileTime);
     EIGEN_ONLY_USED_FOR_DEBUG(minInnerStride);
-    eigen_assert((((std::uintptr_t(m_data) % internal::traits<Derived>::Alignment) == 0) ||
-                  (cols() * rows() * minInnerStride * sizeof(Scalar)) < internal::traits<Derived>::Alignment) &&
-                 "data is not aligned");
+    eigen_assert(((std::uintptr_t(m_data) % internal::traits<Derived>::Alignment) == 0) ||
+                 (cols() * rows() * minInnerStride * sizeof(Scalar)) < internal::traits<Derived>::Alignment);
 #endif
   }
 

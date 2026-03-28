@@ -145,6 +145,10 @@ class Block
                  (ColsAtCompileTime == Dynamic || ColsAtCompileTime == blockCols));
     eigen_assert(startRow >= 0 && blockRows >= 0 && startRow <= xpr.rows() - blockRows && startCol >= 0 &&
                  blockCols >= 0 && startCol <= xpr.cols() - blockCols);
+    eigen_assert(blockRows >= 0 && blockRows <= xpr.rows());
+    eigen_assert(blockCols >= 0 && blockCols <= xpr.cols());
+    eigen_assert(startRow >= 0 && startRow + blockRows <= xpr.rows());
+    eigen_assert(startCol >= 0 && startCol + blockCols <= xpr.cols());
   }
 
   // convert nested blocks (e.g. Block<Block<MatrixType>>) to a simple block expression (Block<MatrixType>)
