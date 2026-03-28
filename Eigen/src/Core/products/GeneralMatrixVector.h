@@ -182,8 +182,6 @@ general_matrix_vector_product<Index, LhsScalar, LhsMapper, ColMajor, ConjugateLh
                                             ResScalar* res, Index resIncr, RhsScalar alpha) {
   EIGEN_UNUSED_VARIABLE(resIncr);
   eigen_internal_assert(resIncr == 1);
-  eigen_assert(rows > 0 && cols > 0);
-  eigen_assert(res != nullptr);
 
   // The following copy tells the compiler that lhs's attributes are not modified outside this function
   // This helps GCC to generate proper code.
@@ -206,7 +204,6 @@ general_matrix_vector_product<Index, LhsScalar, LhsMapper, ColMajor, ConjugateLh
     HasQuarter = (int)ResPacketSizeQuarter < (int)ResPacketSizeHalf
   };
 
-  eigen_assert(rows > 0 && cols > 0);
   const Index n8 = rows - 8 * ResPacketSize + 1;
   const Index n4 = rows - 4 * ResPacketSize + 1;
   const Index n3 = rows - 3 * ResPacketSize + 1;
@@ -350,8 +347,6 @@ general_matrix_vector_product<Index, LhsScalar, LhsMapper, RowMajor, ConjugateLh
   LhsMapper lhs(alhs);
 
   eigen_internal_assert(rhs.stride() == 1);
-  eigen_assert(rows > 0 && cols > 0);
-  eigen_assert(res != nullptr);
   conj_helper<LhsScalar, RhsScalar, ConjugateLhs, ConjugateRhs> cj;
   conj_helper<LhsPacket, RhsPacket, ConjugateLhs, ConjugateRhs> pcj;
   conj_helper<LhsPacketHalf, RhsPacketHalf, ConjugateLhs, ConjugateRhs> pcj_half;
@@ -646,8 +641,6 @@ general_matrix_vector_product<Index, LhsScalar, LhsMapper, RowMajor, ConjugateLh
                                                        ResScalar alpha) {
   LhsMapper lhs(alhs);
   eigen_internal_assert(rhs.stride() == 1);
-  eigen_assert(rows > 0 && cols > 0);
-  eigen_assert(res != nullptr);
 
   enum {
     LhsPacketSizeHalf = HalfTraits::LhsPacketSize,
