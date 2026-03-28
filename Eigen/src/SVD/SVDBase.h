@@ -172,7 +172,7 @@ class SVDBase : public SolverBase<SVDBase<Derived> > {
    */
   const MatrixUType& matrixU() const {
     _check_compute_assertions();
-    eigen_assert(computeU() && "This SVD decomposition didn't compute U. Did you ask for it?");
+    eigen_assert(computeU());
     return m_matrixU;
   }
 
@@ -188,7 +188,7 @@ class SVDBase : public SolverBase<SVDBase<Derived> > {
    */
   const MatrixVType& matrixV() const {
     _check_compute_assertions();
-    eigen_assert(computeV() && "This SVD decomposition didn't compute V. Did you ask for it?");
+    eigen_assert(computeV());
     return m_matrixV;
   }
 
@@ -298,7 +298,7 @@ class SVDBase : public SolverBase<SVDBase<Derived> > {
    * \returns \c Success if computation was successful.
    */
   EIGEN_DEVICE_FUNC ComputationInfo info() const {
-    eigen_assert(m_isInitialized && "SVD is not initialized.");
+    eigen_assert(m_isInitialized);
     return m_info;
   }
 
@@ -313,7 +313,7 @@ class SVDBase : public SolverBase<SVDBase<Derived> > {
  protected:
   EIGEN_STATIC_ASSERT_NON_INTEGER(Scalar)
 
-  void _check_compute_assertions() const { eigen_assert(m_isInitialized && "SVD is not initialized."); }
+  void _check_compute_assertions() const { eigen_assert(m_isInitialized); }
 
   template <bool Transpose_, typename Rhs>
   void _check_solve_assertion(const Rhs& b) const {
@@ -418,8 +418,8 @@ bool SVDBase<Derived>::allocate(Index rows, Index cols, unsigned int computation
   m_computeFullV = ShouldComputeFullV || internal::should_svd_compute_full_v(computationOptions);
   m_computeThinV = ShouldComputeThinV || internal::should_svd_compute_thin_v(computationOptions);
 
-  eigen_assert(!(m_computeFullU && m_computeThinU) && "SVDBase: you can't ask for both full and thin U");
-  eigen_assert(!(m_computeFullV && m_computeThinV) && "SVDBase: you can't ask for both full and thin V");
+  eigen_assert(!(m_computeFullU && m_computeThinU));
+  eigen_assert(!(m_computeFullV && m_computeThinV));
 
   m_diagSize.setValue(numext::mini(m_rows.value(), m_cols.value()));
   m_singularValues.resize(m_diagSize.value());

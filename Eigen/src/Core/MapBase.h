@@ -171,7 +171,7 @@ class MapBase<Derived, ReadOnlyAccessors> : public internal::dense_xpr_base<Deri
 // in TensorFlow Lite that are currently relying on this UB.
 #ifndef EIGEN_ALLOW_UNALIGNED_SCALARS
     // Pointer must be aligned to the Scalar type, otherwise we get UB.
-    eigen_assert((std::uintptr_t(m_data) % alignof(Scalar) == 0) && "data is not scalar-aligned");
+    eigen_assert((std::uintptr_t(m_data) % alignof(Scalar) == 0));
 #endif
 #if EIGEN_MAX_ALIGN_BYTES > 0
     // innerStride() is not set yet when this function is called, so we optimistically assume the lowest plausible
@@ -188,7 +188,7 @@ class MapBase<Derived, ReadOnlyAccessors> : public internal::dense_xpr_base<Deri
   EIGEN_DEVICE_FUNC void checkSanity(std::enable_if_t<internal::traits<T>::Alignment == 0, void*> = 0) const {
 #ifndef EIGEN_ALLOW_UNALIGNED_SCALARS
     // Pointer must be aligned to the Scalar type, otherwise we get UB.
-    eigen_assert((std::uintptr_t(m_data) % alignof(Scalar) == 0) && "data is not scalar-aligned");
+    eigen_assert((std::uintptr_t(m_data) % alignof(Scalar) == 0));
 #endif
   }
 

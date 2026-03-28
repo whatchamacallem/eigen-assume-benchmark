@@ -216,7 +216,7 @@ class PastixBase : public SparseSolverBase<Derived> {
    * \sa iparm()
    */
   ComputationInfo info() const {
-    eigen_assert(m_isInitialized && "Decomposition is not initialized.");
+    eigen_assert(m_isInitialized);
     return m_info;
   }
 
@@ -232,7 +232,7 @@ class PastixBase : public SparseSolverBase<Derived> {
 
   // Free all the data allocated by Pastix
   void clean() {
-    eigen_assert(m_initisOk && "The Pastix structure should be allocated first");
+    eigen_assert(m_initisOk);
     m_iparm(IPARM_START_TASK) = API_TASK_CLEAN;
     m_iparm(IPARM_END_TASK) = API_TASK_CLEAN;
     internal::eigen_pastix(&m_pastixdata, MPI_COMM_WORLD, 0, 0, 0, (Scalar *)0, m_perm.data(), m_invp.data(), 0, 0,
@@ -292,7 +292,7 @@ void PastixBase<Derived>::init() {
 
 template <class Derived>
 void PastixBase<Derived>::compute(ColSpMatrix &mat) {
-  eigen_assert(mat.rows() == mat.cols() && "The input matrix should be squared");
+  eigen_assert(mat.rows() == mat.cols());
 
   analyzePattern(mat);
   factorize(mat);
@@ -302,7 +302,7 @@ void PastixBase<Derived>::compute(ColSpMatrix &mat) {
 
 template <class Derived>
 void PastixBase<Derived>::analyzePattern(ColSpMatrix &mat) {
-  eigen_assert(m_initisOk && "The initialization of PaSTiX failed");
+  eigen_assert(m_initisOk);
 
   // clean previous calls
   if (m_size > 0) clean();
@@ -329,7 +329,7 @@ void PastixBase<Derived>::analyzePattern(ColSpMatrix &mat) {
 template <class Derived>
 void PastixBase<Derived>::factorize(ColSpMatrix &mat) {
   //   if(&m_cpyMat != &mat) m_cpyMat = mat;
-  eigen_assert(m_analysisIsOk && "The analysis phase should be called before the factorization phase");
+  eigen_assert(m_analysisIsOk);
   m_iparm(IPARM_START_TASK) = API_TASK_NUMFACT;
   m_iparm(IPARM_END_TASK) = API_TASK_NUMFACT;
   m_size = internal::convert_index<int>(mat.rows());
@@ -353,7 +353,7 @@ void PastixBase<Derived>::factorize(ColSpMatrix &mat) {
 template <typename Base>
 template <typename Rhs, typename Dest>
 bool PastixBase<Base>::_solve_impl(const MatrixBase<Rhs> &b, MatrixBase<Dest> &x) const {
-  eigen_assert(m_isInitialized && "The matrix should be factorized first");
+  eigen_assert(m_isInitialized);
   EIGEN_STATIC_ASSERT((Dest::Flags & RowMajorBit) == 0, THIS_METHOD_IS_ONLY_FOR_COLUMN_MAJOR_MATRICES);
   int rhs = 1;
 

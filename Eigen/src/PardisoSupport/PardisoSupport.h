@@ -138,7 +138,7 @@ class PardisoImpl : public SparseSolverBase<Derived> {
    *          \c NumericalIssue if the matrix appears to be negative.
    */
   ComputationInfo info() const {
-    eigen_assert(m_isInitialized && "Decomposition is not initialized.");
+    eigen_assert(m_isInitialized);
     return m_info;
   }
 
@@ -285,7 +285,7 @@ Derived& PardisoImpl<Derived>::analyzePattern(const MatrixType& a) {
 
 template <class Derived>
 Derived& PardisoImpl<Derived>::factorize(const MatrixType& a) {
-  eigen_assert(m_analysisIsOk && "You must first call analyzePattern()");
+  eigen_assert(m_analysisIsOk);
   eigen_assert(m_size == a.rows() && m_size == a.cols());
 
   derived().getMatrix(a);

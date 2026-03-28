@@ -43,13 +43,13 @@ struct CoreThreadPoolDevice {
   using Task = std::function<void()>;
   EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE CoreThreadPoolDevice(ThreadPool& pool, float threadCostThreshold = 3e-5f)
       : m_pool(pool) {
-    eigen_assert(threadCostThreshold >= 0.0f && "threadCostThreshold must be non-negative");
+    eigen_assert(threadCostThreshold >= 0.0f);
     m_costFactor = threadCostThreshold;
   }
 
   template <int PacketSize>
   EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE int calculateLevels(Index size, float cost) const {
-    eigen_assert(cost >= 0.0f && "cost must be non-negative");
+    eigen_assert(cost >= 0.0f);
     Index numOps = size / PacketSize;
     int actualThreads = numOps < m_pool.NumThreads() ? static_cast<int>(numOps) : m_pool.NumThreads();
     float totalCost = static_cast<float>(numOps) * cost;
@@ -75,7 +75,7 @@ struct CoreThreadPoolDevice {
     while (level > 0) {
       level--;
       Index size = end - begin;
-      eigen_assert(size % PacketSize == 0 && "this function assumes size is a multiple of PacketSize");
+      eigen_assert(size % PacketSize == 0);
       Index mid = begin + numext::round_down(size >> 1, PacketSize);
       Task right = [this, mid, end, &f, &barrier, level]() {
         parallelForImpl<UnaryFunctor, PacketSize>(mid, end, f, barrier, level);
@@ -103,7 +103,7 @@ struct CoreThreadPoolDevice {
         outerEnd = outerMid;
       } else {
         Index innerSize = innerEnd - innerBegin;
-        eigen_assert(innerSize % PacketSize == 0 && "this function assumes innerSize is a multiple of PacketSize");
+        eigen_assert(innerSize % PacketSize == 0);
         Index innerMid = innerBegin + numext::round_down(innerSize >> 1, PacketSize);
         Task right = [this, &f, &barrier, outerBegin, outerEnd, innerMid, innerEnd, level]() {
           parallelForImpl<BinaryFunctor, PacketSize>(outerBegin, outerEnd, innerMid, innerEnd, f, barrier, level);

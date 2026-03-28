@@ -211,7 +211,7 @@ class Hyperplane {
     } else if (traits == Isometry)
       normal() = mat * normal();
     else {
-      eigen_assert(0 && "invalid traits value in Hyperplane::transform()");
+      eigen_assert(0);
     }
     return *this;
   }

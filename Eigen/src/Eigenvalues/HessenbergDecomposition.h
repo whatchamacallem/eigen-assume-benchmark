@@ -170,7 +170,7 @@ class HessenbergDecomposition {
    * \sa packedMatrix(), \ref Householder_Module "Householder module"
    */
   const CoeffVectorType& householderCoefficients() const {
-    eigen_assert(m_isInitialized && "HessenbergDecomposition is not initialized.");
+    eigen_assert(m_isInitialized);
     return m_hCoeffs;
   }
 
@@ -204,7 +204,7 @@ class HessenbergDecomposition {
    * \sa householderCoefficients()
    */
   const MatrixType& packedMatrix() const {
-    eigen_assert(m_isInitialized && "HessenbergDecomposition is not initialized.");
+    eigen_assert(m_isInitialized);
     return m_matrix;
   }
 
@@ -223,7 +223,7 @@ class HessenbergDecomposition {
    * \sa matrixH() for an example, class HouseholderSequence
    */
   HouseholderSequenceType matrixQ() const {
-    eigen_assert(m_isInitialized && "HessenbergDecomposition is not initialized.");
+    eigen_assert(m_isInitialized);
     return HouseholderSequenceType(m_matrix, m_hCoeffs.conjugate()).setLength(m_matrix.rows() - 1).setShift(1);
   }
 
@@ -248,7 +248,7 @@ class HessenbergDecomposition {
    * \sa matrixQ(), packedMatrix()
    */
   MatrixHReturnType matrixH() const {
-    eigen_assert(m_isInitialized && "HessenbergDecomposition is not initialized.");
+    eigen_assert(m_isInitialized);
     return MatrixHReturnType(*this);
   }
 

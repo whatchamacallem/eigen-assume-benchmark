@@ -345,7 +345,7 @@ struct find_coeff_impl {
 template <typename Derived, typename IndexType, typename Func>
 EIGEN_DEVICE_FUNC typename internal::traits<Derived>::Scalar findCoeff(const DenseBase<Derived>& mat, Func& func,
                                                                        IndexType* rowPtr, IndexType* colPtr) {
-  eigen_assert(mat.rows() > 0 && mat.cols() > 0 && "you are using an empty matrix");
+  eigen_assert(mat.rows() > 0 && mat.cols() > 0);
   using Scalar = typename DenseBase<Derived>::Scalar;
   using FindCoeffImpl = internal::find_coeff_impl<Derived, Func>;
   Index outer = 0;
@@ -360,7 +360,7 @@ EIGEN_DEVICE_FUNC typename internal::traits<Derived>::Scalar findCoeff(const Den
 template <typename Derived, typename IndexType, typename Func>
 EIGEN_DEVICE_FUNC typename internal::traits<Derived>::Scalar findCoeff(const DenseBase<Derived>& mat, Func& func,
                                                                        IndexType* indexPtr) {
-  eigen_assert(mat.size() > 0 && "you are using an empty matrix");
+  eigen_assert(mat.size() > 0);
   EIGEN_STATIC_ASSERT_VECTOR_ONLY(Derived)
   using Scalar = typename DenseBase<Derived>::Scalar;
   using FindCoeffImpl = internal::find_coeff_impl<Derived, Func>;

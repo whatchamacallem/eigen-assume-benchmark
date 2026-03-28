@@ -134,7 +134,7 @@ class COLAMDOrdering {
     // Call Colamd routine to compute the ordering
     StorageIndex info = internal::Colamd::compute_ordering(m, n, Alen, A.data(), p.data(), knobs, stats);
     EIGEN_UNUSED_VARIABLE(info);
-    eigen_assert(info && "COLAMD failed ");
+    eigen_assert(info);
 
     perm.resize(n);
     for (StorageIndex i = 0; i < n; i++) perm.indices()(p(i)) = i;

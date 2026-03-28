@@ -109,7 +109,7 @@ class KLU : public SparseSolverBase<KLU<MatrixType_> > {
    *          \c NumericalIssue if the matrix.appears to be negative.
    */
   ComputationInfo info() const {
-    eigen_assert(m_isInitialized && "Decomposition is not initialized.");
+    eigen_assert(m_isInitialized);
     return m_info;
   }
   /** Computes the sparse LU factorization of \a matrix
@@ -163,7 +163,7 @@ class KLU : public SparseSolverBase<KLU<MatrixType_> > {
    */
   template <typename InputMatrixType>
   void factorize(const InputMatrixType &matrix) {
-    eigen_assert(m_analysisIsOk && "KLU: you must first call analyzePattern()");
+    eigen_assert(m_analysisIsOk);
     if (m_numeric) klu_free_numeric(&m_numeric, &m_common);
 
     grab(matrix.derived());

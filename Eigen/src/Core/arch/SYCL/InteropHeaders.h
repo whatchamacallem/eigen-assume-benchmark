@@ -135,14 +135,14 @@ struct PacketWrapper {
   typedef typename ::Eigen::internal::unpacket_traits<PacketReturnType>::type Scalar;
   template <typename Index>
   EIGEN_DEVICE_FUNC static Scalar scalarize(Index, PacketReturnType&) {
-    eigen_assert(false && "THERE IS NO PACKETIZE VERSION FOR  THE CHOSEN TYPE");
+    eigen_assert(false);
     abort();
   }
   EIGEN_DEVICE_FUNC static PacketReturnType convert_to_packet_type(Scalar in, Scalar) {
     return ::Eigen::internal::template plset<PacketReturnType>(in);
   }
   EIGEN_DEVICE_FUNC static void set_packet(PacketReturnType, Scalar*) {
-    eigen_assert(false && "THERE IS NO PACKETIZE VERSION FOR  THE CHOSEN TYPE");
+    eigen_assert(false);
     abort();
   }
 };

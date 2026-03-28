@@ -1035,82 +1035,82 @@ EIGEN_STRONG_INLINE Packet2ul pmul<Packet2ul>(const Packet2ul& a, const Packet2u
 
 template <>
 EIGEN_STRONG_INLINE Packet4c pdiv<Packet4c>(const Packet4c& /*a*/, const Packet4c& /*b*/) {
-  eigen_assert(false && "packet integer division are not supported by NEON");
+  eigen_assert(false);
   return pset1<Packet4c>(0);
 }
 template <>
 EIGEN_STRONG_INLINE Packet8c pdiv<Packet8c>(const Packet8c& /*a*/, const Packet8c& /*b*/) {
-  eigen_assert(false && "packet integer division are not supported by NEON");
+  eigen_assert(false);
   return pset1<Packet8c>(0);
 }
 template <>
 EIGEN_STRONG_INLINE Packet16c pdiv<Packet16c>(const Packet16c& /*a*/, const Packet16c& /*b*/) {
-  eigen_assert(false && "packet integer division are not supported by NEON");
+  eigen_assert(false);
   return pset1<Packet16c>(0);
 }
 template <>
 EIGEN_STRONG_INLINE Packet4uc pdiv<Packet4uc>(const Packet4uc& /*a*/, const Packet4uc& /*b*/) {
-  eigen_assert(false && "packet integer division are not supported by NEON");
+  eigen_assert(false);
   return pset1<Packet4uc>(0);
 }
 template <>
 EIGEN_STRONG_INLINE Packet8uc pdiv<Packet8uc>(const Packet8uc& /*a*/, const Packet8uc& /*b*/) {
-  eigen_assert(false && "packet integer division are not supported by NEON");
+  eigen_assert(false);
   return pset1<Packet8uc>(0);
 }
 template <>
 EIGEN_STRONG_INLINE Packet16uc pdiv<Packet16uc>(const Packet16uc& /*a*/, const Packet16uc& /*b*/) {
-  eigen_assert(false && "packet integer division are not supported by NEON");
+  eigen_assert(false);
   return pset1<Packet16uc>(0);
 }
 template <>
 EIGEN_STRONG_INLINE Packet4s pdiv<Packet4s>(const Packet4s& /*a*/, const Packet4s& /*b*/) {
-  eigen_assert(false && "packet integer division are not supported by NEON");
+  eigen_assert(false);
   return pset1<Packet4s>(0);
 }
 template <>
 EIGEN_STRONG_INLINE Packet8s pdiv<Packet8s>(const Packet8s& /*a*/, const Packet8s& /*b*/) {
-  eigen_assert(false && "packet integer division are not supported by NEON");
+  eigen_assert(false);
   return pset1<Packet8s>(0);
 }
 template <>
 EIGEN_STRONG_INLINE Packet4us pdiv<Packet4us>(const Packet4us& /*a*/, const Packet4us& /*b*/) {
-  eigen_assert(false && "packet integer division are not supported by NEON");
+  eigen_assert(false);
   return pset1<Packet4us>(0);
 }
 template <>
 EIGEN_STRONG_INLINE Packet8us pdiv<Packet8us>(const Packet8us& /*a*/, const Packet8us& /*b*/) {
-  eigen_assert(false && "packet integer division are not supported by NEON");
+  eigen_assert(false);
   return pset1<Packet8us>(0);
 }
 template <>
 EIGEN_STRONG_INLINE Packet2i pdiv<Packet2i>(const Packet2i& /*a*/, const Packet2i& /*b*/) {
-  eigen_assert(false && "packet integer division are not supported by NEON");
+  eigen_assert(false);
   return pset1<Packet2i>(0);
 }
 template <>
 EIGEN_STRONG_INLINE Packet4i pdiv<Packet4i>(const Packet4i& /*a*/, const Packet4i& /*b*/) {
-  eigen_assert(false && "packet integer division are not supported by NEON");
+  eigen_assert(false);
   return pset1<Packet4i>(0);
 }
 template <>
 EIGEN_STRONG_INLINE Packet2ui pdiv<Packet2ui>(const Packet2ui& /*a*/, const Packet2ui& /*b*/) {
-  eigen_assert(false && "packet integer division are not supported by NEON");
+  eigen_assert(false);
   return pset1<Packet2ui>(0);
 }
 template <>
 EIGEN_STRONG_INLINE Packet4ui pdiv<Packet4ui>(const Packet4ui& /*a*/, const Packet4ui& /*b*/) {
-  eigen_assert(false && "packet integer division are not supported by NEON");
+  eigen_assert(false);
   return pset1<Packet4ui>(0);
 }
 template <>
 EIGEN_STRONG_INLINE Packet2l pdiv<Packet2l>(const Packet2l& /*a*/, const Packet2l& /*b*/) {
-  eigen_assert(false && "packet integer division are not supported by NEON");
+  eigen_assert(false);
   return pset1<Packet2l>(0LL);
 }
 template <>
 EIGEN_STRONG_INLINE Packet2ul pdiv<Packet2ul>(const Packet2ul& /*a*/, const Packet2ul& /*b*/) {
-  eigen_assert(false && "packet integer division are not supported by NEON");
+  eigen_assert(false);
   return pset1<Packet2ul>(0ULL);
 }
 

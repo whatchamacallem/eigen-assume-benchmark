@@ -33,7 +33,7 @@ struct CommaInitializer {
 
   EIGEN_DEVICE_FUNC constexpr CommaInitializer(XprType& xpr, const Scalar& s)
       : m_xpr(xpr), m_row(0), m_col(1), m_currentBlockRows(1) {
-    eigen_assert(m_xpr.rows() > 0 && m_xpr.cols() > 0 && "Cannot comma-initialize a 0x0 matrix (operator<<)");
+    eigen_assert(m_xpr.rows() > 0 && m_xpr.cols() > 0);
     m_xpr.coeffRef(0, 0) = s;
   }
 
@@ -62,9 +62,9 @@ struct CommaInitializer {
       m_row += m_currentBlockRows;
       m_col = 0;
       m_currentBlockRows = 1;
-      eigen_assert(m_row < m_xpr.rows() && "Too many rows passed to comma initializer (operator<<)");
+      eigen_assert(m_row < m_xpr.rows());
     }
-    eigen_assert(m_col < m_xpr.cols() && "Too many coefficients passed to comma initializer (operator<<)");
+    eigen_assert(m_col < m_xpr.cols());
     eigen_assert(m_currentBlockRows == 1);
     m_xpr.coeffRef(m_row, m_col++) = s;
     return *this;

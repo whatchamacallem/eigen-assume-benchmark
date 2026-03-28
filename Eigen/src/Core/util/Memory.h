@@ -89,10 +89,10 @@ namespace internal {
 
 #ifdef EIGEN_NO_MALLOC
 EIGEN_DEVICE_FUNC inline void check_that_malloc_is_allowed() {
-  eigen_assert(false && "heap allocation is forbidden (EIGEN_NO_MALLOC is defined)");
+  eigen_assert(false);
 }
 EIGEN_DEVICE_FUNC inline void check_that_free_is_allowed() {
-  eigen_assert(false && "heap deallocation is forbidden (EIGEN_NO_MALLOC is defined)");
+  eigen_assert(false);
 }
 #elif defined EIGEN_RUNTIME_NO_MALLOC
 EIGEN_DEVICE_FUNC inline bool is_malloc_allowed_impl(bool update, bool new_value = false) {

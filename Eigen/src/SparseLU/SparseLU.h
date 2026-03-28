@@ -48,7 +48,7 @@ class SparseLUTransposeView : public SparseSolverBase<SparseLUTransposeView<Conj
   template <typename Rhs, typename Dest>
   bool _solve_impl(const MatrixBase<Rhs>& B, MatrixBase<Dest>& X_base) const {
     Dest& X(X_base.derived());
-    eigen_assert(m_sparseLU->info() == Success && "The matrix should be factorized first");
+    eigen_assert(m_sparseLU->info() == Success);
     EIGEN_STATIC_ASSERT((Dest::Flags & RowMajorBit) == 0, THIS_METHOD_IS_ONLY_FOR_COLUMN_MAJOR_MATRICES);
 
     // const_cast_derived() is needed to enable aliasing detection when applying the permutations.
@@ -324,7 +324,7 @@ class SparseLU : public SparseSolverBase<SparseLU<MatrixType_, OrderingType_>>,
    * \sa lastErrorMessage()
    */
   ComputationInfo info() const {
-    eigen_assert(m_isInitialized && "Decomposition is not initialized.");
+    eigen_assert(m_isInitialized);
     return m_info;
   }
 
@@ -337,7 +337,7 @@ class SparseLU : public SparseSolverBase<SparseLU<MatrixType_, OrderingType_>>,
   template <typename Rhs, typename Dest>
   bool _solve_impl(const MatrixBase<Rhs>& B, MatrixBase<Dest>& X_base) const {
     Dest& X(X_base.derived());
-    eigen_assert(m_factorizationIsOk && "The matrix should be factorized first");
+    eigen_assert(m_factorizationIsOk);
     EIGEN_STATIC_ASSERT((Dest::Flags & RowMajorBit) == 0, THIS_METHOD_IS_ONLY_FOR_COLUMN_MAJOR_MATRICES);
 
     // Permute the right hand side to form X = Pr*B
@@ -370,7 +370,7 @@ class SparseLU : public SparseSolverBase<SparseLU<MatrixType_, OrderingType_>>,
    */
   Scalar absDeterminant() const {
     using std::abs;
-    eigen_assert(m_factorizationIsOk && "The matrix should be factorized first.");
+    eigen_assert(m_factorizationIsOk);
     // Initialize with the determinant of the row matrix
     Scalar det = Scalar(1.);
     // Note that the diagonal blocks of U are stored in supernodes,
@@ -400,7 +400,7 @@ class SparseLU : public SparseSolverBase<SparseLU<MatrixType_, OrderingType_>>,
     using std::abs;
     using std::log;
 
-    eigen_assert(m_factorizationIsOk && "The matrix should be factorized first.");
+    eigen_assert(m_factorizationIsOk);
     Scalar det = Scalar(0.);
     for (Index j = 0; j < this->cols(); ++j) {
       for (typename SCMatrix::InnerIterator it(m_Lstore, j); it; ++it) {
@@ -421,7 +421,7 @@ class SparseLU : public SparseSolverBase<SparseLU<MatrixType_, OrderingType_>>,
    * \sa absDeterminant(), logAbsDeterminant()
    */
   Scalar signDeterminant() const {
-    eigen_assert(m_factorizationIsOk && "The matrix should be factorized first.");
+    eigen_assert(m_factorizationIsOk);
     // Initialize with the determinant of the row matrix
     Index det = 1;
     // Note that the diagonal blocks of U are stored in supernodes,
@@ -447,7 +447,7 @@ class SparseLU : public SparseSolverBase<SparseLU<MatrixType_, OrderingType_>>,
    * \sa absDeterminant(), logAbsDeterminant()
    */
   Scalar determinant() const {
-    eigen_assert(m_factorizationIsOk && "The matrix should be factorized first.");
+    eigen_assert(m_factorizationIsOk);
     // Initialize with the determinant of the row matrix
     Scalar det = Scalar(1.);
     // Note that the diagonal blocks of U are stored in supernodes,
@@ -610,8 +610,8 @@ void SparseLU<MatrixType, OrderingType>::analyzePattern(const MatrixType& mat) {
 template <typename MatrixType, typename OrderingType>
 void SparseLU<MatrixType, OrderingType>::factorize(const MatrixType& matrix) {
   using internal::emptyIdxLU;
-  eigen_assert(m_analysisIsOk && "analyzePattern() should be called first");
-  eigen_assert((matrix.rows() == matrix.cols()) && "Only for squared matrices");
+  eigen_assert(m_analysisIsOk);
+  eigen_assert((matrix.rows() == matrix.cols()));
 
   m_isInitialized = true;
 

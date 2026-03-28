@@ -94,7 +94,7 @@ class PartialPivLU : public SolverBase<PartialPivLU<MatrixType_, PermutationInde
    * \returns \c Success
    */
   ComputationInfo info() const {
-    eigen_assert(m_isInitialized && "PartialPivLU is not initialized.");
+    eigen_assert(m_isInitialized);
     return Success;
   }
 
@@ -148,14 +148,14 @@ class PartialPivLU : public SolverBase<PartialPivLU<MatrixType_, PermutationInde
    * \sa matrixL(), matrixU()
    */
   inline const MatrixType& matrixLU() const {
-    eigen_assert(m_isInitialized && "PartialPivLU is not initialized.");
+    eigen_assert(m_isInitialized);
     return m_lu;
   }
 
   /** \returns the permutation matrix P.
    */
   inline const PermutationType& permutationP() const {
-    eigen_assert(m_isInitialized && "PartialPivLU is not initialized.");
+    eigen_assert(m_isInitialized);
     return m_p;
   }
 
@@ -185,7 +185,7 @@ class PartialPivLU : public SolverBase<PartialPivLU<MatrixType_, PermutationInde
       the LU decomposition.
     */
   inline RealScalar rcond() const {
-    eigen_assert(m_isInitialized && "PartialPivLU is not initialized.");
+    eigen_assert(m_isInitialized);
     return internal::rcond_estimate_helper(m_l1_norm, *this);
   }
 
@@ -197,7 +197,7 @@ class PartialPivLU : public SolverBase<PartialPivLU<MatrixType_, PermutationInde
    * \sa MatrixBase::inverse(), LU::inverse()
    */
   inline Inverse<PartialPivLU> inverse() const {
-    eigen_assert(m_isInitialized && "PartialPivLU is not initialized.");
+    eigen_assert(m_isInitialized);
     return Inverse<PartialPivLU>(*this);
   }
 
@@ -494,7 +494,7 @@ void PartialPivLU<MatrixType, PermutationIndex>::compute() {
   else
     m_l1_norm = RealScalar(0);
 
-  eigen_assert(m_lu.rows() == m_lu.cols() && "PartialPivLU is only for square (and moreover invertible) matrices");
+  eigen_assert(m_lu.rows() == m_lu.cols());
   const Index size = m_lu.rows();
 
   m_rowsTranspositions.resize(size);
@@ -511,7 +511,7 @@ void PartialPivLU<MatrixType, PermutationIndex>::compute() {
 template <typename MatrixType, typename PermutationIndex>
 typename PartialPivLU<MatrixType, PermutationIndex>::Scalar PartialPivLU<MatrixType, PermutationIndex>::determinant()
     const {
-  eigen_assert(m_isInitialized && "PartialPivLU is not initialized.");
+  eigen_assert(m_isInitialized);
   return Scalar(m_det_p) * m_lu.diagonal().prod();
 }
 
@@ -520,7 +520,7 @@ typename PartialPivLU<MatrixType, PermutationIndex>::Scalar PartialPivLU<MatrixT
  * This function is provided for debug purpose. */
 template <typename MatrixType, typename PermutationIndex>
 MatrixType PartialPivLU<MatrixType, PermutationIndex>::reconstructedMatrix() const {
-  eigen_assert(m_isInitialized && "LU is not initialized.");
+  eigen_assert(m_isInitialized);
   // LU
   MatrixType res = m_lu.template triangularView<UnitLower>().toDenseMatrix() * m_lu.template triangularView<Upper>();
 

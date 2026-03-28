@@ -87,7 +87,7 @@ cholmod_sparse viewAsCholmod(Ref<SparseMatrix<Scalar_, Options_, StorageIndex_> 
   } else if (internal::is_same<StorageIndex_, SuiteSparse_long>::value) {
     res.itype = CHOLMOD_LONG;
   } else {
-    eigen_assert(false && "Index type not supported yet");
+    eigen_assert(false);
   }
 
   // setup res.xtype
@@ -286,7 +286,7 @@ class CholmodBase : public SparseSolverBase<Derived> {
    *          \c NumericalIssue if the matrix.appears to be negative.
    */
   ComputationInfo info() const {
-    eigen_assert(m_isInitialized && "Decomposition is not initialized.");
+    eigen_assert(m_isInitialized);
     return m_info;
   }
 
@@ -325,7 +325,7 @@ class CholmodBase : public SparseSolverBase<Derived> {
    * \sa analyzePattern()
    */
   void factorize(const MatrixType& matrix) {
-    eigen_assert(m_analysisIsOk && "You must first call analyzePattern()");
+    eigen_assert(m_analysisIsOk);
     cholmod_sparse A = viewAsCholmod(matrix.template selfadjointView<UpLo>());
     internal::cm_factorize_p<StorageIndex>(&A, m_shiftOffset, 0, 0, m_cholmodFactor, m_cholmod);
 

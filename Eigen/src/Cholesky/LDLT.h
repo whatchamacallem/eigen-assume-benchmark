@@ -151,38 +151,38 @@ class LDLT : public SolverBase<LDLT<MatrixType_, UpLo_> > {
 
   /** \returns a view of the upper triangular matrix U */
   inline typename Traits::MatrixU matrixU() const {
-    eigen_assert(m_isInitialized && "LDLT is not initialized.");
+    eigen_assert(m_isInitialized);
     return Traits::getU(m_matrix);
   }
 
   /** \returns a view of the lower triangular matrix L */
   inline typename Traits::MatrixL matrixL() const {
-    eigen_assert(m_isInitialized && "LDLT is not initialized.");
+    eigen_assert(m_isInitialized);
     return Traits::getL(m_matrix);
   }
 
   /** \returns the permutation matrix P as a transposition sequence.
    */
   inline const TranspositionType& transpositionsP() const {
-    eigen_assert(m_isInitialized && "LDLT is not initialized.");
+    eigen_assert(m_isInitialized);
     return m_transpositions;
   }
 
   /** \returns the coefficients of the diagonal matrix D */
   inline Diagonal<const MatrixType> vectorD() const {
-    eigen_assert(m_isInitialized && "LDLT is not initialized.");
+    eigen_assert(m_isInitialized);
     return m_matrix.diagonal();
   }
 
   /** \returns true if the matrix is positive (semidefinite) */
   inline bool isPositive() const {
-    eigen_assert(m_isInitialized && "LDLT is not initialized.");
+    eigen_assert(m_isInitialized);
     return m_sign == internal::PositiveSemiDef || m_sign == internal::ZeroSign;
   }
 
   /** \returns true if the matrix is negative (semidefinite) */
   inline bool isNegative(void) const {
-    eigen_assert(m_isInitialized && "LDLT is not initialized.");
+    eigen_assert(m_isInitialized);
     return m_sign == internal::NegativeSemiDef || m_sign == internal::ZeroSign;
   }
 
@@ -216,7 +216,7 @@ class LDLT : public SolverBase<LDLT<MatrixType_, UpLo_> > {
    *  which \c *this is the LDLT decomposition.
    */
   RealScalar rcond() const {
-    eigen_assert(m_isInitialized && "LDLT is not initialized.");
+    eigen_assert(m_isInitialized);
     return internal::rcond_estimate_helper(m_l1_norm, *this);
   }
 
@@ -228,7 +228,7 @@ class LDLT : public SolverBase<LDLT<MatrixType_, UpLo_> > {
    * TODO: document the storage layout.
    */
   inline const MatrixType& matrixLDLT() const {
-    eigen_assert(m_isInitialized && "LDLT is not initialized.");
+    eigen_assert(m_isInitialized);
     return m_matrix;
   }
 
@@ -251,7 +251,7 @@ class LDLT : public SolverBase<LDLT<MatrixType_, UpLo_> > {
    *          \c NumericalIssue if the factorization failed because of a zero pivot.
    */
   ComputationInfo info() const {
-    eigen_assert(m_isInitialized && "LDLT is not initialized.");
+    eigen_assert(m_isInitialized);
     return m_info;
   }
 
@@ -605,7 +605,7 @@ void LDLT<MatrixType_, UpLo_>::_solve_impl_transposed(const RhsType& rhs, DstTyp
 template <typename MatrixType, int UpLo_>
 template <typename Derived>
 bool LDLT<MatrixType, UpLo_>::solveInPlace(MatrixBase<Derived>& bAndX) const {
-  eigen_assert(m_isInitialized && "LDLT is not initialized.");
+  eigen_assert(m_isInitialized);
   eigen_assert(m_matrix.rows() == bAndX.rows());
 
   bAndX = this->solve(bAndX);
@@ -618,7 +618,7 @@ bool LDLT<MatrixType, UpLo_>::solveInPlace(MatrixBase<Derived>& bAndX) const {
  * This function is provided for debug purpose. */
 template <typename MatrixType, int UpLo_>
 MatrixType LDLT<MatrixType, UpLo_>::reconstructedMatrix() const {
-  eigen_assert(m_isInitialized && "LDLT is not initialized.");
+  eigen_assert(m_isInitialized);
   const Index size = m_matrix.rows();
   MatrixType res(size, size);
 

@@ -188,7 +188,7 @@ class IterativeSolverBase : public SparseSolverBase<Derived> {
    */
   template <typename MatrixDerived>
   Derived& factorize(const EigenBase<MatrixDerived>& A) {
-    eigen_assert(m_analysisIsOk && "You must first call analyzePattern()");
+    eigen_assert(m_analysisIsOk);
     grab(A.derived());
     m_preconditioner.factorize(matrix());
     m_factorizationIsOk = true;
@@ -260,7 +260,7 @@ class IterativeSolverBase : public SparseSolverBase<Derived> {
 
   /** \returns the number of iterations performed during the last solve */
   Index iterations() const {
-    eigen_assert(m_isInitialized && "IterativeSolverBase is not initialized.");
+    eigen_assert(m_isInitialized);
     return m_iterations;
   }
 
@@ -268,7 +268,7 @@ class IterativeSolverBase : public SparseSolverBase<Derived> {
    * It is a close approximation of the true relative residual error |Ax-b|/|b|.
    */
   RealScalar error() const {
-    eigen_assert(m_isInitialized && "IterativeSolverBase is not initialized.");
+    eigen_assert(m_isInitialized);
     return m_error;
   }
 
@@ -279,14 +279,14 @@ class IterativeSolverBase : public SparseSolverBase<Derived> {
    */
   template <typename Rhs, typename Guess>
   inline const SolveWithGuess<Derived, Rhs, Guess> solveWithGuess(const MatrixBase<Rhs>& b, const Guess& x0) const {
-    eigen_assert(m_isInitialized && "Solver is not initialized.");
-    eigen_assert(derived().rows() == b.rows() && "solve(): invalid number of rows of the right hand side matrix b");
+    eigen_assert(m_isInitialized);
+    eigen_assert(derived().rows() == b.rows());
     return SolveWithGuess<Derived, Rhs, Guess>(derived(), b.derived(), x0);
   }
 
   /** \returns Success if the iterations converged, and NoConvergence otherwise. */
   ComputationInfo info() const {
-    eigen_assert(m_isInitialized && "IterativeSolverBase is not initialized.");
+    eigen_assert(m_isInitialized);
     return m_info;
   }
 

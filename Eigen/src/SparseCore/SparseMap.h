@@ -178,11 +178,11 @@ class SparseMapBase<Derived, WriteAccessors> : public SparseMapBase<Derived, Rea
 
     Index start = Base::m_outerIndex[outer];
     Index end = Base::isCompressed() ? Base::m_outerIndex[outer + 1] : start + Base::m_innerNonZeros[outer];
-    eigen_assert(end >= start && "you probably called coeffRef on a non finalized matrix");
-    eigen_assert(end > start && "coeffRef cannot be called on a zero coefficient");
+    eigen_assert(end >= start);
+    eigen_assert(end > start);
     StorageIndex* r = std::lower_bound(&Base::m_innerIndices[start], &Base::m_innerIndices[end], inner);
     const Index id = r - &Base::m_innerIndices[0];
-    eigen_assert((*r == inner) && (id < end) && "coeffRef cannot be called on a zero coefficient");
+    eigen_assert((*r == inner) && (id < end));
     return const_cast<Scalar*>(Base::m_values)[id];
   }
 

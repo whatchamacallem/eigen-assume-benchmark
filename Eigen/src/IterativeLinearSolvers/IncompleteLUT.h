@@ -145,7 +145,7 @@ class IncompleteLUT : public SparseSolverBase<IncompleteLUT<Scalar_, StorageInde
    *          \c NumericalIssue if the matrix.appears to be negative.
    */
   ComputationInfo info() const {
-    eigen_assert(m_isInitialized && "IncompleteLUT is not initialized.");
+    eigen_assert(m_isInitialized);
     return m_info;
   }
 
@@ -220,7 +220,7 @@ void IncompleteLUT<Scalar, StorageIndex>::setFillfactor(int fillfactor) {
  **/
 template <typename Scalar, typename StorageIndex>
 const typename IncompleteLUT<Scalar, StorageIndex>::FactorType IncompleteLUT<Scalar, StorageIndex>::matrixL() const {
-  eigen_assert(m_factorizationIsOk && "factorize() should be called first");
+  eigen_assert(m_factorizationIsOk);
   return m_lu.template triangularView<UnitLower>();
 }
 
@@ -231,7 +231,7 @@ const typename IncompleteLUT<Scalar, StorageIndex>::FactorType IncompleteLUT<Sca
  **/
 template <typename Scalar, typename StorageIndex>
 const typename IncompleteLUT<Scalar, StorageIndex>::FactorType IncompleteLUT<Scalar, StorageIndex>::matrixU() const {
-  eigen_assert(m_factorizationIsOk && "Factorization must be computed first.");
+  eigen_assert(m_factorizationIsOk);
   return m_lu.template triangularView<Upper>();
 }
 
@@ -263,7 +263,7 @@ void IncompleteLUT<Scalar, StorageIndex>::factorize(const MatrixType_& amat) {
   using std::sqrt;
   using std::swap;
 
-  eigen_assert((amat.rows() == amat.cols()) && "The factorization should be done on a square matrix");
+  eigen_assert((amat.rows() == amat.cols()));
   Index n = amat.cols();  // Size of the matrix
   m_lu.resize(n, n);
   // Declare Working vectors and variables
@@ -272,7 +272,7 @@ void IncompleteLUT<Scalar, StorageIndex>::factorize(const MatrixType_& amat) {
   VectorI jr(n);  // Indicate the position of the nonzero elements in the vector u -- A zero location is indicated by -1
 
   // Apply the fill-reducing permutation
-  eigen_assert(m_analysisIsOk && "You must first call analyzePattern()");
+  eigen_assert(m_analysisIsOk);
   SparseMatrix<Scalar, RowMajor, StorageIndex> mat;
   mat = amat.twistedBy(m_Pinv);
 

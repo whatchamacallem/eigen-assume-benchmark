@@ -121,7 +121,7 @@ class ParametrizedLine {
     else if (traits == Isometry)
       direction() = mat * direction();
     else {
-      eigen_assert(0 && "invalid traits value in ParametrizedLine::transform()");
+      eigen_assert(0);
     }
     origin() = mat * origin();
     return *this;

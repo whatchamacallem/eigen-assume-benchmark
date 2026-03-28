@@ -188,7 +188,7 @@ class SparseCompressedBase : public SparseMatrixBase<Derived> {
     Index start = this->outerIndexPtr()[outer];
     Index end = this->isCompressed() ? this->outerIndexPtr()[outer + 1]
                                      : this->outerIndexPtr()[outer] + this->innerNonZeroPtr()[outer];
-    eigen_assert(end >= start && "you are using a non finalized sparse matrix or written coefficient does not exist");
+    eigen_assert(end >= start);
     internal::LowerBoundIndex p;
     p.value =
         std::lower_bound(this->innerIndexPtr() + start, this->innerIndexPtr() + end, inner) - this->innerIndexPtr();
@@ -571,7 +571,7 @@ struct evaluator<SparseCompressedBase<Derived>> : evaluator_base<Derived> {
 
   Scalar& coeffRef(Index row, Index col) {
     Index p = find(row, col);
-    eigen_assert(p != Dynamic && "written coefficient does not exist");
+    eigen_assert(p != Dynamic);
     return m_matrix->const_cast_derived().valuePtr()[p];
   }
 

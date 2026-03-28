@@ -176,7 +176,7 @@ class Tridiagonalization {
    * \sa packedMatrix(), \ref Householder_Module "Householder module"
    */
   inline CoeffVectorType householderCoefficients() const {
-    eigen_assert(m_isInitialized && "Tridiagonalization is not initialized.");
+    eigen_assert(m_isInitialized);
     return m_hCoeffs;
   }
 
@@ -212,7 +212,7 @@ class Tridiagonalization {
    * \sa householderCoefficients()
    */
   inline const MatrixType& packedMatrix() const {
-    eigen_assert(m_isInitialized && "Tridiagonalization is not initialized.");
+    eigen_assert(m_isInitialized);
     return m_matrix;
   }
 
@@ -232,7 +232,7 @@ class Tridiagonalization {
    *     matrixT(), class HouseholderSequence
    */
   HouseholderSequenceType matrixQ() const {
-    eigen_assert(m_isInitialized && "Tridiagonalization is not initialized.");
+    eigen_assert(m_isInitialized);
     return HouseholderSequenceType(m_matrix, m_hCoeffs.conjugate()).setLength(m_matrix.rows() - 1).setShift(1);
   }
 
@@ -254,7 +254,7 @@ class Tridiagonalization {
    * matrixQ(), packedMatrix(), diagonal(), subDiagonal()
    */
   MatrixTReturnType matrixT() const {
-    eigen_assert(m_isInitialized && "Tridiagonalization is not initialized.");
+    eigen_assert(m_isInitialized);
     return MatrixTReturnType(m_matrix.real());
   }
 
@@ -293,13 +293,13 @@ class Tridiagonalization {
 
 template <typename MatrixType>
 typename Tridiagonalization<MatrixType>::DiagonalReturnType Tridiagonalization<MatrixType>::diagonal() const {
-  eigen_assert(m_isInitialized && "Tridiagonalization is not initialized.");
+  eigen_assert(m_isInitialized);
   return m_matrix.diagonal().real();
 }
 
 template <typename MatrixType>
 typename Tridiagonalization<MatrixType>::SubDiagonalReturnType Tridiagonalization<MatrixType>::subDiagonal() const {
-  eigen_assert(m_isInitialized && "Tridiagonalization is not initialized.");
+  eigen_assert(m_isInitialized);
   return m_matrix.template diagonal<-1>().real();
 }
 

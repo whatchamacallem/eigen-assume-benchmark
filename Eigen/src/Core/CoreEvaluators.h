@@ -637,7 +637,7 @@ struct unary_evaluator<CwiseUnaryOp<core_cast_op<SrcType, DstType>, ArgType>, In
     Index packetOffset = offset * PacketSize;
     Index actualRow = IsRowMajor ? row : row + packetOffset;
     Index actualCol = IsRowMajor ? col + packetOffset : col;
-    eigen_assert(check_array_bounds(actualRow, actualCol, 0, PacketSize) && "Array index out of bounds");
+    eigen_assert(check_array_bounds(actualRow, actualCol, 0, PacketSize));
     return m_argImpl.template packet<LoadMode, PacketType>(actualRow, actualCol);
   }
   template <int LoadMode, typename PacketType = SrcPacketType>
@@ -645,7 +645,7 @@ struct unary_evaluator<CwiseUnaryOp<core_cast_op<SrcType, DstType>, ArgType>, In
     constexpr int PacketSize = unpacket_traits<PacketType>::size;
     Index packetOffset = offset * PacketSize;
     Index actualIndex = index + packetOffset;
-    eigen_assert(check_array_bounds(actualIndex, 0, PacketSize) && "Array index out of bounds");
+    eigen_assert(check_array_bounds(actualIndex, 0, PacketSize));
     return m_argImpl.template packet<LoadMode, PacketType>(actualIndex);
   }
   template <int LoadMode, typename PacketType = SrcPacketType>
@@ -655,7 +655,7 @@ struct unary_evaluator<CwiseUnaryOp<core_cast_op<SrcType, DstType>, ArgType>, In
     Index packetOffset = offset * PacketSize;
     Index actualRow = IsRowMajor ? row : row + packetOffset;
     Index actualCol = IsRowMajor ? col + packetOffset : col;
-    eigen_assert(check_array_bounds(actualRow, actualCol, begin, count) && "Array index out of bounds");
+    eigen_assert(check_array_bounds(actualRow, actualCol, begin, count));
     return m_argImpl.template packetSegment<LoadMode, PacketType>(actualRow, actualCol, begin, count);
   }
   template <int LoadMode, typename PacketType = SrcPacketType>
@@ -664,7 +664,7 @@ struct unary_evaluator<CwiseUnaryOp<core_cast_op<SrcType, DstType>, ArgType>, In
     constexpr int PacketSize = unpacket_traits<PacketType>::size;
     Index packetOffset = offset * PacketSize;
     Index actualIndex = index + packetOffset;
-    eigen_assert(check_array_bounds(actualIndex, begin, count) && "Array index out of bounds");
+    eigen_assert(check_array_bounds(actualIndex, begin, count));
     return m_argImpl.template packetSegment<LoadMode, PacketType>(actualIndex, begin, count);
   }
 

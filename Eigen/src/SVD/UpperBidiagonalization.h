@@ -69,13 +69,13 @@ class UpperBidiagonalization {
   const BidiagonalType& bidiagonal() const { return m_bidiagonal; }
 
   const HouseholderUSequenceType householderU() const {
-    eigen_assert(m_isInitialized && "UpperBidiagonalization is not initialized.");
+    eigen_assert(m_isInitialized);
     return HouseholderUSequenceType(m_householder, m_householder.diagonal().conjugate());
   }
 
   const HouseholderVSequenceType householderV()  // const here gives nasty errors and i'm lazy
   {
-    eigen_assert(m_isInitialized && "UpperBidiagonalization is not initialized.");
+    eigen_assert(m_isInitialized);
     return HouseholderVSequenceType(m_householder.conjugate(), m_householder.const_derived().template diagonal<1>())
         .setLength(m_householder.cols() - 1)
         .setShift(1);
@@ -330,7 +330,7 @@ UpperBidiagonalization<MatrixType_>& UpperBidiagonalization<MatrixType_>::comput
   Index cols = matrix.cols();
   EIGEN_ONLY_USED_FOR_DEBUG(cols);
 
-  eigen_assert(rows >= cols && "UpperBidiagonalization is only for matrices satisfying rows>=cols.");
+  eigen_assert(rows >= cols);
 
   m_householder = matrix;
 
@@ -350,7 +350,7 @@ UpperBidiagonalization<MatrixType_>& UpperBidiagonalization<MatrixType_>::comput
   EIGEN_ONLY_USED_FOR_DEBUG(rows);
   EIGEN_ONLY_USED_FOR_DEBUG(cols);
 
-  eigen_assert(rows >= cols && "UpperBidiagonalization is only for matrices satisfying rows>=cols.");
+  eigen_assert(rows >= cols);
 
   m_householder = matrix;
   upperbidiagonalization_inplace_blocked(m_householder, m_bidiagonal);

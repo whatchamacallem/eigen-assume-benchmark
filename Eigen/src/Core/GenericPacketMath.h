@@ -773,7 +773,7 @@ template <typename Packet>
 EIGEN_DEVICE_FUNC inline Packet pload_partial(const typename unpacket_traits<Packet>::type* from, const Index n,
                                               const Index offset = 0) {
   const Index packet_size = unpacket_traits<Packet>::size;
-  eigen_assert(n + offset <= packet_size && "number of elements plus offset will read past end of packet");
+  eigen_assert(n + offset <= packet_size);
   typedef typename unpacket_traits<Packet>::type Scalar;
   EIGEN_ALIGN_MAX Scalar elements[packet_size] = {Scalar(0)};
   for (Index i = offset; i < numext::mini(n + offset, packet_size); i++) {
@@ -794,7 +794,7 @@ template <typename Packet>
 EIGEN_DEVICE_FUNC inline Packet ploadu_partial(const typename unpacket_traits<Packet>::type* from, const Index n,
                                                const Index offset = 0) {
   const Index packet_size = unpacket_traits<Packet>::size;
-  eigen_assert(n + offset <= packet_size && "number of elements plus offset will read past end of packet");
+  eigen_assert(n + offset <= packet_size);
   typedef typename unpacket_traits<Packet>::type Scalar;
   EIGEN_ALIGN_MAX Scalar elements[packet_size] = {Scalar(0)};
   for (Index i = offset; i < numext::mini(n + offset, packet_size); i++) {
@@ -936,7 +936,7 @@ EIGEN_DEVICE_FUNC inline void pstore(Scalar* to, const Packet& from) {
 template <typename Scalar, typename Packet>
 EIGEN_DEVICE_FUNC inline void pstore_partial(Scalar* to, const Packet& from, const Index n, const Index offset = 0) {
   const Index packet_size = unpacket_traits<Packet>::size;
-  eigen_assert(n + offset <= packet_size && "number of elements plus offset will write past end of packet");
+  eigen_assert(n + offset <= packet_size);
   EIGEN_ALIGN_MAX Scalar elements[packet_size];
   pstore<Scalar>(elements, from);
   for (Index i = 0; i < numext::mini(n, packet_size - offset); i++) {
@@ -954,7 +954,7 @@ EIGEN_DEVICE_FUNC inline void pstoreu(Scalar* to, const Packet& from) {
 template <typename Scalar, typename Packet>
 EIGEN_DEVICE_FUNC inline void pstoreu_partial(Scalar* to, const Packet& from, const Index n, const Index offset = 0) {
   const Index packet_size = unpacket_traits<Packet>::size;
-  eigen_assert(n + offset <= packet_size && "number of elements plus offset will write past end of packet");
+  eigen_assert(n + offset <= packet_size);
   EIGEN_ALIGN_MAX Scalar elements[packet_size];
   pstore<Scalar>(elements, from);
   for (Index i = 0; i < numext::mini(n, packet_size - offset); i++) {
@@ -1619,7 +1619,7 @@ EIGEN_DEVICE_FUNC inline Packet ploaduSegment(const typename unpacket_traits<Pac
                                               Index count) {
   using Scalar = typename unpacket_traits<Packet>::type;
   constexpr Index PacketSize = unpacket_traits<Packet>::size;
-  eigen_assert((begin >= 0 && count >= 0 && begin + count <= PacketSize) && "invalid range");
+  eigen_assert((begin >= 0 && count >= 0 && begin + count <= PacketSize));
   Scalar aux[PacketSize] = {};
   for (Index k = begin; k < begin + count; k++) {
     aux[k] = from[k];
@@ -1641,7 +1641,7 @@ null if \a count is zero.*/
 template <typename Scalar, typename Packet>
 EIGEN_DEVICE_FUNC inline void pstoreuSegment(Scalar* to, const Packet& from, Index begin, Index count) {
   constexpr Index PacketSize = unpacket_traits<Packet>::size;
-  eigen_assert((begin >= 0 && count >= 0 && begin + count <= PacketSize) && "invalid range");
+  eigen_assert((begin >= 0 && count >= 0 && begin + count <= PacketSize));
   Scalar aux[PacketSize];
   pstoreu<Scalar, Packet>(aux, from);
   for (Index k = begin; k < begin + count; k++) {

@@ -277,8 +277,8 @@ class SelfAdjointEigenSolver {
    * \sa eigenvalues()
    */
   EIGEN_DEVICE_FUNC const EigenvectorsType& eigenvectors() const {
-    eigen_assert(m_isInitialized && "SelfAdjointEigenSolver is not initialized.");
-    eigen_assert(m_eigenvectorsOk && "The eigenvectors have not been computed together with the eigenvalues.");
+    eigen_assert(m_isInitialized);
+    eigen_assert(m_eigenvectorsOk);
     return m_eivec;
   }
 
@@ -298,7 +298,7 @@ class SelfAdjointEigenSolver {
    * \sa eigenvectors(), MatrixBase::eigenvalues()
    */
   EIGEN_DEVICE_FUNC const RealVectorType& eigenvalues() const {
-    eigen_assert(m_isInitialized && "SelfAdjointEigenSolver is not initialized.");
+    eigen_assert(m_isInitialized);
     return m_eivalues;
   }
 
@@ -320,8 +320,8 @@ class SelfAdjointEigenSolver {
    * \sa operatorInverseSqrt(), <a href="unsupported/group__MatrixFunctions__Module.html">MatrixFunctions Module</a>
    */
   EIGEN_DEVICE_FUNC MatrixType operatorSqrt() const {
-    eigen_assert(m_isInitialized && "SelfAdjointEigenSolver is not initialized.");
-    eigen_assert(m_eigenvectorsOk && "The eigenvectors have not been computed together with the eigenvalues.");
+    eigen_assert(m_isInitialized);
+    eigen_assert(m_eigenvectorsOk);
     return m_eivec * m_eivalues.cwiseSqrt().asDiagonal() * m_eivec.adjoint();
   }
 
@@ -336,8 +336,8 @@ class SelfAdjointEigenSolver {
    * <a href="unsupported/group__MatrixFunctions__Module.html">MatrixFunctions Module</a>
    */
   EIGEN_DEVICE_FUNC MatrixType operatorExp() const {
-    eigen_assert(m_isInitialized && "SelfAdjointEigenSolver is not initialized.");
-    eigen_assert(m_eigenvectorsOk && "The eigenvectors have not been computed together with the eigenvalues.");
+    eigen_assert(m_isInitialized);
+    eigen_assert(m_eigenvectorsOk);
     return m_eivec * m_eivalues.array().exp().matrix().asDiagonal() * m_eivec.adjoint();
   }
 
@@ -360,8 +360,8 @@ class SelfAdjointEigenSolver {
    * href="unsupported/group__MatrixFunctions__Module.html">MatrixFunctions Module</a>
    */
   EIGEN_DEVICE_FUNC MatrixType operatorInverseSqrt() const {
-    eigen_assert(m_isInitialized && "SelfAdjointEigenSolver is not initialized.");
-    eigen_assert(m_eigenvectorsOk && "The eigenvectors have not been computed together with the eigenvalues.");
+    eigen_assert(m_isInitialized);
+    eigen_assert(m_eigenvectorsOk);
     return m_eivec * m_eivalues.cwiseInverse().cwiseSqrt().asDiagonal() * m_eivec.adjoint();
   }
 
@@ -370,7 +370,7 @@ class SelfAdjointEigenSolver {
    * \returns \c Success if computation was successful, \c NoConvergence otherwise.
    */
   EIGEN_DEVICE_FUNC ComputationInfo info() const {
-    eigen_assert(m_isInitialized && "SelfAdjointEigenSolver is not initialized.");
+    eigen_assert(m_isInitialized);
     return m_info;
   }
 

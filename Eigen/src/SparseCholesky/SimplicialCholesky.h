@@ -93,7 +93,7 @@ class SimplicialCholeskyBase : public SparseSolverBase<Derived> {
    *          \c NumericalIssue if the matrix.appears to be negative.
    */
   ComputationInfo info() const {
-    eigen_assert(m_isInitialized && "Decomposition is not initialized.");
+    eigen_assert(m_isInitialized);
     return m_info;
   }
 
@@ -390,13 +390,13 @@ class SimplicialLLT : public SimplicialCholeskyBase<SimplicialLLT<MatrixType_, U
 
   /** \returns an expression of the factor L */
   inline const MatrixL matrixL() const {
-    eigen_assert(Base::m_factorizationIsOk && "Simplicial LLT not factorized");
+    eigen_assert(Base::m_factorizationIsOk);
     return Traits::getL(Base::m_matrix);
   }
 
   /** \returns an expression of the factor U (= L^*) */
   inline const MatrixU matrixU() const {
-    eigen_assert(Base::m_factorizationIsOk && "Simplicial LLT not factorized");
+    eigen_assert(Base::m_factorizationIsOk);
     return Traits::getU(Base::m_matrix);
   }
 
@@ -474,18 +474,18 @@ class SimplicialLDLT : public SimplicialCholeskyBase<SimplicialLDLT<MatrixType_,
 
   /** \returns a vector expression of the diagonal D */
   inline const VectorType vectorD() const {
-    eigen_assert(Base::m_factorizationIsOk && "Simplicial LDLT not factorized");
+    eigen_assert(Base::m_factorizationIsOk);
     return Base::m_diag;
   }
   /** \returns an expression of the factor L */
   inline const MatrixL matrixL() const {
-    eigen_assert(Base::m_factorizationIsOk && "Simplicial LDLT not factorized");
+    eigen_assert(Base::m_factorizationIsOk);
     return Traits::getL(Base::m_matrix);
   }
 
   /** \returns an expression of the factor U (= L^*) */
   inline const MatrixU matrixU() const {
-    eigen_assert(Base::m_factorizationIsOk && "Simplicial LDLT not factorized");
+    eigen_assert(Base::m_factorizationIsOk);
     return Traits::getU(Base::m_matrix);
   }
 
@@ -561,13 +561,13 @@ class SimplicialNonHermitianLLT
 
   /** \returns an expression of the factor L */
   inline const MatrixL matrixL() const {
-    eigen_assert(Base::m_factorizationIsOk && "Simplicial LLT not factorized");
+    eigen_assert(Base::m_factorizationIsOk);
     return Traits::getL(Base::m_matrix);
   }
 
   /** \returns an expression of the factor U (= L^*) */
   inline const MatrixU matrixU() const {
-    eigen_assert(Base::m_factorizationIsOk && "Simplicial LLT not factorized");
+    eigen_assert(Base::m_factorizationIsOk);
     return Traits::getU(Base::m_matrix);
   }
 
@@ -646,18 +646,18 @@ class SimplicialNonHermitianLDLT
 
   /** \returns a vector expression of the diagonal D */
   inline const VectorType vectorD() const {
-    eigen_assert(Base::m_factorizationIsOk && "Simplicial LDLT not factorized");
+    eigen_assert(Base::m_factorizationIsOk);
     return Base::m_diag;
   }
   /** \returns an expression of the factor L */
   inline const MatrixL matrixL() const {
-    eigen_assert(Base::m_factorizationIsOk && "Simplicial LDLT not factorized");
+    eigen_assert(Base::m_factorizationIsOk);
     return Traits::getL(Base::m_matrix);
   }
 
   /** \returns an expression of the factor U (= L^*) */
   inline const MatrixU matrixU() const {
-    eigen_assert(Base::m_factorizationIsOk && "Simplicial LDLT not factorized");
+    eigen_assert(Base::m_factorizationIsOk);
     return Traits::getU(Base::m_matrix);
   }
 
@@ -729,11 +729,11 @@ class SimplicialCholesky : public SimplicialCholeskyBase<SimplicialCholesky<Matr
   }
 
   inline const VectorType vectorD() const {
-    eigen_assert(Base::m_factorizationIsOk && "Simplicial Cholesky not factorized");
+    eigen_assert(Base::m_factorizationIsOk);
     return Base::m_diag;
   }
   inline const CholMatrixType rawMatrix() const {
-    eigen_assert(Base::m_factorizationIsOk && "Simplicial Cholesky not factorized");
+    eigen_assert(Base::m_factorizationIsOk);
     return Base::m_matrix;
   }
 

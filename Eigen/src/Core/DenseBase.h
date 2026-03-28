@@ -227,7 +227,7 @@ class DenseBase
    */
   EIGEN_DEVICE_FUNC void resize(Index newSize) {
     EIGEN_ONLY_USED_FOR_DEBUG(newSize);
-    eigen_assert(newSize == this->size() && "DenseBase::resize() does not actually allow to resize.");
+    eigen_assert(newSize == this->size());
   }
   /** Only plain matrices/arrays, not expressions, may be resized; therefore the only useful resize methods are
    * Matrix::resize() and Array::resize(). The present method only asserts that the new size equals the old size, and

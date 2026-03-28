@@ -121,8 +121,8 @@ class RealQZ {
    * \returns A const reference to the matrix Q.
    */
   const MatrixType& matrixQ() const {
-    eigen_assert(m_isInitialized && "RealQZ is not initialized.");
-    eigen_assert(m_computeQZ && "The matrices Q and Z have not been computed during the QZ decomposition.");
+    eigen_assert(m_isInitialized);
+    eigen_assert(m_computeQZ);
     return m_Q;
   }
 
@@ -131,8 +131,8 @@ class RealQZ {
    * \returns A const reference to the matrix Z.
    */
   const MatrixType& matrixZ() const {
-    eigen_assert(m_isInitialized && "RealQZ is not initialized.");
-    eigen_assert(m_computeQZ && "The matrices Q and Z have not been computed during the QZ decomposition.");
+    eigen_assert(m_isInitialized);
+    eigen_assert(m_computeQZ);
     return m_Z;
   }
 
@@ -141,7 +141,7 @@ class RealQZ {
    * \returns A const reference to the matrix S.
    */
   const MatrixType& matrixS() const {
-    eigen_assert(m_isInitialized && "RealQZ is not initialized.");
+    eigen_assert(m_isInitialized);
     return m_S;
   }
 
@@ -150,7 +150,7 @@ class RealQZ {
    * \returns A const reference to the matrix S.
    */
   const MatrixType& matrixT() const {
-    eigen_assert(m_isInitialized && "RealQZ is not initialized.");
+    eigen_assert(m_isInitialized);
     return m_T;
   }
 
@@ -168,14 +168,14 @@ class RealQZ {
    * \returns \c Success if computation was successful, \c NoConvergence otherwise.
    */
   ComputationInfo info() const {
-    eigen_assert(m_isInitialized && "RealQZ is not initialized.");
+    eigen_assert(m_isInitialized);
     return m_info;
   }
 
   /** \brief Returns number of performed QR-like iterations.
    */
   Index iterations() const {
-    eigen_assert(m_isInitialized && "RealQZ is not initialized.");
+    eigen_assert(m_isInitialized);
     return m_global_iter;
   }
 

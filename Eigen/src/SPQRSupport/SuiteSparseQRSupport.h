@@ -166,8 +166,8 @@ class SPQR : public SparseSolverBase<SPQR<MatrixType_> > {
 
   template <typename Rhs, typename Dest>
   void _solve_impl(const MatrixBase<Rhs>& b, MatrixBase<Dest>& dest) const {
-    eigen_assert(m_isInitialized && " The QR factorization should be computed first, call compute()");
-    eigen_assert(b.cols() == 1 && "This method is for vectors only");
+    eigen_assert(m_isInitialized);
+    eigen_assert(b.cols() == 1);
 
     // Compute Q^T * b
     typename Dest::PlainObject y, y2;
@@ -194,7 +194,7 @@ class SPQR : public SparseSolverBase<SPQR<MatrixType_> > {
   /** \returns the sparse triangular factor R. It is a sparse matrix
    */
   const MatrixType matrixR() const {
-    eigen_assert(m_isInitialized && " The QR factorization should be computed first, call compute()");
+    eigen_assert(m_isInitialized);
     if (!m_isRUpToDate) {
       m_R = viewAsEigen<Scalar, StorageIndex>(*m_cR);
       m_isRUpToDate = true;
@@ -205,7 +205,7 @@ class SPQR : public SparseSolverBase<SPQR<MatrixType_> > {
   SPQRMatrixQReturnType<SPQR> matrixQ() const { return SPQRMatrixQReturnType<SPQR>(*this); }
   /// Get the permutation that was applied to columns of A
   PermutationType colsPermutation() const {
-    eigen_assert(m_isInitialized && "Decomposition is not initialized.");
+    eigen_assert(m_isInitialized);
     return PermutationType(m_E, m_cR->ncol);
   }
   /**
@@ -213,7 +213,7 @@ class SPQR : public SparseSolverBase<SPQR<MatrixType_> > {
    * It should be equal to matrixQR().cols if the matrix is full-rank
    */
   Index rank() const {
-    eigen_assert(m_isInitialized && "Decomposition is not initialized.");
+    eigen_assert(m_isInitialized);
     return m_cc.SPQR_istat[4];
   }
   /// Set the fill-reducing ordering method to be used
@@ -233,7 +233,7 @@ class SPQR : public SparseSolverBase<SPQR<MatrixType_> > {
    *          \c NumericalIssue if the sparse QR can not be computed
    */
   ComputationInfo info() const {
-    eigen_assert(m_isInitialized && "Decomposition is not initialized.");
+    eigen_assert(m_isInitialized);
     return m_info;
   }
 

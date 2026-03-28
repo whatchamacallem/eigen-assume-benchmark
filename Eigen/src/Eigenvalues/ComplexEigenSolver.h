@@ -151,8 +151,8 @@ class ComplexEigenSolver {
    * Output: \verbinclude ComplexEigenSolver_eigenvectors.out
    */
   const EigenvectorType& eigenvectors() const {
-    eigen_assert(m_isInitialized && "ComplexEigenSolver is not initialized.");
-    eigen_assert(m_eigenvectorsOk && "The eigenvectors have not been computed together with the eigenvalues.");
+    eigen_assert(m_isInitialized);
+    eigen_assert(m_eigenvectorsOk);
     return m_eivec;
   }
 
@@ -175,7 +175,7 @@ class ComplexEigenSolver {
    * Output: \verbinclude ComplexEigenSolver_eigenvalues.out
    */
   const EigenvalueType& eigenvalues() const {
-    eigen_assert(m_isInitialized && "ComplexEigenSolver is not initialized.");
+    eigen_assert(m_isInitialized);
     return m_eivalues;
   }
 
@@ -211,7 +211,7 @@ class ComplexEigenSolver {
    * \returns \c Success if computation was successful, \c NoConvergence otherwise.
    */
   ComputationInfo info() const {
-    eigen_assert(m_isInitialized && "ComplexEigenSolver is not initialized.");
+    eigen_assert(m_isInitialized);
     return m_schur.info();
   }
 

@@ -125,7 +125,7 @@ struct eigen_zero_impl<Xpr, /*use_memset*/ true> {
     if (num_bytes <= 0) return;
     void* dst_ptr = static_cast<void*>(dst.data());
 #ifndef EIGEN_NO_DEBUG
-    eigen_assert((dst_ptr != nullptr) && "null pointer dereference error!");
+    eigen_assert((dst_ptr != nullptr));
 #endif
     EIGEN_USING_STD(memset);
     memset(dst_ptr, 0, static_cast<std::size_t>(num_bytes));

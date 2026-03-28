@@ -73,8 +73,8 @@ class ComplexQZ {
    * \returns A const reference to the matrix Q.
    */
   const MatrixType& matrixQ() const {
-    eigen_assert(m_isInitialized && "ComplexQZ is not initialized.");
-    eigen_assert(m_computeQZ && "The matrices Q and Z have not been computed during the QZ decomposition.");
+    eigen_assert(m_isInitialized);
+    eigen_assert(m_computeQZ);
     return m_Q;
   }
 
@@ -83,8 +83,8 @@ class ComplexQZ {
    * \returns A const reference to the matrix Z.
    */
   const MatrixType& matrixZ() const {
-    eigen_assert(m_isInitialized && "ComplexQZ is not initialized.");
-    eigen_assert(m_computeQZ && "The matrices Q and Z have not been computed during the QZ decomposition.");
+    eigen_assert(m_isInitialized);
+    eigen_assert(m_computeQZ);
     return m_Z;
   }
 
@@ -93,7 +93,7 @@ class ComplexQZ {
    * \returns A const reference to the matrix S.
    */
   const MatrixType& matrixS() const {
-    eigen_assert(m_isInitialized && "ComplexQZ is not initialized.");
+    eigen_assert(m_isInitialized);
     return m_S;
   }
 
@@ -102,7 +102,7 @@ class ComplexQZ {
    * \returns A const reference to the matrix S.
    */
   const MatrixType& matrixT() const {
-    eigen_assert(m_isInitialized && "ComplexQZ is not initialized.");
+    eigen_assert(m_isInitialized);
     return m_T;
   }
 
@@ -179,7 +179,7 @@ class ComplexQZ {
   /** \brief number of performed QZ steps
    */
   unsigned int iterations() const {
-    eigen_assert(m_isInitialized && "ComplexQZ is not initialized.");
+    eigen_assert(m_isInitialized);
     return m_global_iter;
   }
 
@@ -229,8 +229,8 @@ void ComplexQZ<MatrixType_>::compute(const MatrixType& A, const MatrixType& B, b
   m_computeQZ = computeQZ;
   m_n = A.rows();
 
-  eigen_assert(m_n == A.cols() && "A is not a square matrix");
-  eigen_assert(m_n == B.rows() && m_n == B.cols() && "B is not a square matrix or B is not of the same size as A");
+  eigen_assert(m_n == A.cols());
+  eigen_assert(m_n == B.rows() && m_n == B.cols());
 
   m_isInitialized = true;
   m_global_iter = 0;
@@ -361,8 +361,8 @@ template <typename SparseMatrixType_>
 void ComplexQZ<MatrixType>::computeSparse(const SparseMatrixType_& A, const SparseMatrixType_& B, bool computeQZ) {
   m_computeQZ = computeQZ;
   m_n = A.rows();
-  eigen_assert(m_n == A.cols() && "A is not a square matrix");
-  eigen_assert(m_n == B.rows() && m_n == B.cols() && "B is not a square matrix or B is not of the same size as A");
+  eigen_assert(m_n == A.cols());
+  eigen_assert(m_n == B.rows() && m_n == B.cols());
   m_isInitialized = true;
   m_global_iter = 0;
   hessenbergTriangularSparse(A, B);

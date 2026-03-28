@@ -245,7 +245,7 @@ EIGEN_STRONG_INLINE VectorT load_vector_unaligned(const scalar_type_of_vector_t<
 
 template <typename VectorT>
 EIGEN_STRONG_INLINE VectorT load_vector_aligned(const scalar_type_of_vector_t<VectorT>* from) {
-  eigen_assert((std::uintptr_t(from) % alignof(VectorT) == 0) && "load_vector_aligned");
+  eigen_assert((std::uintptr_t(from) % alignof(VectorT) == 0));
   return *reinterpret_cast<const VectorT*>(assume_aligned<alignof(VectorT)>(from));
 }
 
@@ -256,7 +256,7 @@ EIGEN_STRONG_INLINE void store_vector_unaligned(scalar_type_of_vector_t<VectorT>
 
 template <typename VectorT>
 EIGEN_STRONG_INLINE void store_vector_aligned(scalar_type_of_vector_t<VectorT>* to, const VectorT& from) {
-  eigen_assert((std::uintptr_t(to) % alignof(VectorT) == 0) && "store_vector_aligned");
+  eigen_assert((std::uintptr_t(to) % alignof(VectorT) == 0));
   *reinterpret_cast<VectorT*>(assume_aligned<alignof(VectorT)>(to)) = from;
 }
 

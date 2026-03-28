@@ -216,7 +216,7 @@ class BDCSVD : public SVDBase<BDCSVD<MatrixType_, Options_> > {
   }
 
   void setSwitchSize(int s) {
-    eigen_assert(s >= 3 && "BDCSVD the size of the algo switch has to be at least 3.");
+    eigen_assert(s >= 3);
     m_impl.setAlgoSwap(s);
   }
 

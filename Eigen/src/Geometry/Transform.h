@@ -1188,7 +1188,7 @@ EIGEN_DEVICE_FUNC Transform<Scalar, Dim, Mode, Options> Transform<Scalar, Dim, M
     } else if (hint & Affine) {
       res.matrix().template topLeftCorner<Dim, Dim>() = linear().inverse();
     } else {
-      eigen_assert(false && "Invalid transform traits in Transform::Inverse");
+      eigen_assert(false);
     }
     // translation and remaining parts
     res.matrix().template topRightCorner<Dim, 1>().noalias() =

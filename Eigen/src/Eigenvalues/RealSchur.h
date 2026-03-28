@@ -126,8 +126,8 @@ class RealSchur {
    * \sa RealSchur(const MatrixType&, bool) for an example
    */
   const MatrixType& matrixU() const {
-    eigen_assert(m_isInitialized && "RealSchur is not initialized.");
-    eigen_assert(m_matUisUptodate && "The matrix U has not been computed during the RealSchur decomposition.");
+    eigen_assert(m_isInitialized);
+    eigen_assert(m_matUisUptodate);
     return m_matU;
   }
 
@@ -142,7 +142,7 @@ class RealSchur {
    * \sa RealSchur(const MatrixType&, bool) for an example
    */
   const MatrixType& matrixT() const {
-    eigen_assert(m_isInitialized && "RealSchur is not initialized.");
+    eigen_assert(m_isInitialized);
     return m_matT;
   }
 
@@ -192,7 +192,7 @@ class RealSchur {
    * \returns \c Success if computation was successful, \c NoConvergence otherwise.
    */
   ComputationInfo info() const {
-    eigen_assert(m_isInitialized && "RealSchur is not initialized.");
+    eigen_assert(m_isInitialized);
     return m_info;
   }
 

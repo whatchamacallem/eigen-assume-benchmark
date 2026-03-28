@@ -200,8 +200,8 @@ class EigenSolver {
    * \sa pseudoEigenvalueMatrix(), eigenvectors()
    */
   const MatrixType& pseudoEigenvectors() const {
-    eigen_assert(m_isInitialized && "EigenSolver is not initialized.");
-    eigen_assert(m_eigenvectorsOk && "The eigenvectors have not been computed together with the eigenvalues.");
+    eigen_assert(m_isInitialized);
+    eigen_assert(m_eigenvectorsOk);
     return m_eivec;
   }
 
@@ -244,7 +244,7 @@ class EigenSolver {
    *     MatrixBase::eigenvalues()
    */
   const EigenvalueType& eigenvalues() const {
-    eigen_assert(m_isInitialized && "EigenSolver is not initialized.");
+    eigen_assert(m_isInitialized);
     return m_eivalues;
   }
 
@@ -281,7 +281,7 @@ class EigenSolver {
   /** \returns NumericalIssue if the input contains INF or NaN values or overflow occurred. Returns Success otherwise.
    */
   ComputationInfo info() const {
-    eigen_assert(m_isInitialized && "EigenSolver is not initialized.");
+    eigen_assert(m_isInitialized);
     return m_info;
   }
 
@@ -317,7 +317,7 @@ class EigenSolver {
 
 template <typename MatrixType>
 MatrixType EigenSolver<MatrixType>::pseudoEigenvalueMatrix() const {
-  eigen_assert(m_isInitialized && "EigenSolver is not initialized.");
+  eigen_assert(m_isInitialized);
   const RealScalar precision = RealScalar(2) * NumTraits<RealScalar>::epsilon();
   const Index n = m_eivalues.rows();
   MatrixType matD = MatrixType::Zero(n, n);
@@ -342,8 +342,8 @@ MatrixType EigenSolver<MatrixType>::pseudoEigenvalueMatrix() const {
 
 template <typename MatrixType>
 typename EigenSolver<MatrixType>::EigenvectorsType EigenSolver<MatrixType>::eigenvectors() const {
-  eigen_assert(m_isInitialized && "EigenSolver is not initialized.");
-  eigen_assert(m_eigenvectorsOk && "The eigenvectors have not been computed together with the eigenvalues.");
+  eigen_assert(m_isInitialized);
+  eigen_assert(m_eigenvectorsOk);
   const RealScalar precision = RealScalar(2) * NumTraits<RealScalar>::epsilon();
   Index n = m_eivec.cols();
   EigenvectorsType matV(n, n);
@@ -563,7 +563,7 @@ void EigenSolver<MatrixType>::doComputeEigenvectors() {
       // We handled a pair of complex conjugate eigenvalues, so need to skip them both
       n--;
     } else {
-      eigen_assert(0 && "Internal bug in EigenSolver (INF or NaN has not been detected)");  // this should not happen
+      eigen_assert(0);  // this should not happen
     }
   }
 

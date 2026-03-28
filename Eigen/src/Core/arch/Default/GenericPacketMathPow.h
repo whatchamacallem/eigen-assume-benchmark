@@ -482,7 +482,7 @@ struct exponent_helper {
     return numext::abs(exp);
   }
   static EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE bool is_odd(const ScalarExponent& exp) {
-    eigen_assert(((numext::isfinite)(exp) && exp == numext::floor(exp)) && "exp must be an integer");
+    eigen_assert(((numext::isfinite)(exp) && exp == numext::floor(exp)));
     ScalarExponent exp_div_2 = exp * one_half;
     ScalarExponent floor_exp_div_2 = numext::floor(exp_div_2);
     return exp_div_2 != floor_exp_div_2;

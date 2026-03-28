@@ -147,7 +147,7 @@ struct SluMatrix : SuperMatrix {
     if (t == SLU_NC || t == SLU_NR || t == SLU_DN)
       Store = &storage;
     else {
-      eigen_assert(false && "storage type not supported");
+      eigen_assert(false);
       Store = 0;
     }
   }
@@ -163,7 +163,7 @@ struct SluMatrix : SuperMatrix {
     else if (internal::is_same<Scalar, std::complex<double> >::value)
       Dtype = SLU_Z;
     else {
-      eigen_assert(false && "Scalar type not supported by SuperLU");
+      eigen_assert(false);
     }
   }
 
@@ -223,7 +223,7 @@ template <typename Scalar, int Rows, int Cols, int Options, int MRows, int MCols
 struct SluMatrixMapHelper<Matrix<Scalar, Rows, Cols, Options, MRows, MCols> > {
   typedef Matrix<Scalar, Rows, Cols, Options, MRows, MCols> MatrixType;
   static void run(MatrixType &mat, SluMatrix &res) {
-    eigen_assert(((Options & RowMajor) != RowMajor) && "row-major dense matrices is not supported by SuperLU");
+    eigen_assert(((Options & RowMajor) != RowMajor));
     res.setStorageType(SLU_DN);
     res.setScalarType<Scalar>();
     res.Mtype = SLU_GE;
@@ -263,7 +263,7 @@ struct SluMatrixMapHelper<SparseMatrixBase<Derived> > {
     if (MatrixType::Flags & Upper) res.Mtype = SLU_TRU;
     if (MatrixType::Flags & Lower) res.Mtype = SLU_TRL;
 
-    eigen_assert(((MatrixType::Flags & SelfAdjoint) == 0) && "SelfAdjoint matrix shape not supported by SuperLU");
+    eigen_assert(((MatrixType::Flags & SelfAdjoint) == 0));
   }
 };
 
@@ -329,7 +329,7 @@ class SuperLUBase : public SparseSolverBase<Derived> {
    *          \c NumericalIssue if the matrix.appears to be negative.
    */
   ComputationInfo info() const {
-    eigen_assert(m_isInitialized && "Decomposition is not initialized.");
+    eigen_assert(m_isInitialized);
     return m_info;
   }
 
@@ -562,7 +562,7 @@ class SuperLU : public SuperLUBase<MatrixType_, SuperLU<MatrixType_> > {
 
 template <typename MatrixType>
 void SuperLU<MatrixType>::factorize(const MatrixType &a) {
-  eigen_assert(m_analysisIsOk && "You must first call analyzePattern()");
+  eigen_assert(m_analysisIsOk);
   if (!m_analysisIsOk) {
     m_info = InvalidInput;
     return;
@@ -855,7 +855,7 @@ class SuperILU : public SuperLUBase<MatrixType_, SuperILU<MatrixType_> > {
 
 template <typename MatrixType>
 void SuperILU<MatrixType>::factorize(const MatrixType &a) {
-  eigen_assert(m_analysisIsOk && "You must first call analyzePattern()");
+  eigen_assert(m_analysisIsOk);
   if (!m_analysisIsOk) {
     m_info = InvalidInput;
     return;

@@ -226,7 +226,7 @@ template <typename Scalar, bool IsSigned>
 struct random_int_impl<Scalar, IsSigned, false> {
   static EIGEN_DEVICE_FUNC inline Scalar run(const Scalar&, const Scalar&) { return run(); }
   static EIGEN_DEVICE_FUNC inline Scalar run() {
-    eigen_assert(std::false_type::value && "RANDOM FOR CUSTOM INTEGERS NOT YET SUPPORTED");
+    eigen_assert(std::false_type::value);
     return Scalar(0);
   }
 };

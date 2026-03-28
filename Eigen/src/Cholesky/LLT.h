@@ -117,13 +117,13 @@ class LLT : public SolverBase<LLT<MatrixType_, UpLo_> > {
 
   /** \returns a view of the upper triangular matrix U */
   inline typename Traits::MatrixU matrixU() const {
-    eigen_assert(m_isInitialized && "LLT is not initialized.");
+    eigen_assert(m_isInitialized);
     return Traits::getU(m_matrix);
   }
 
   /** \returns a view of the lower triangular matrix L */
   inline typename Traits::MatrixL matrixL() const {
-    eigen_assert(m_isInitialized && "LLT is not initialized.");
+    eigen_assert(m_isInitialized);
     return Traits::getL(m_matrix);
   }
 
@@ -152,8 +152,8 @@ class LLT : public SolverBase<LLT<MatrixType_, UpLo_> > {
    *  which \c *this is the Cholesky decomposition.
    */
   RealScalar rcond() const {
-    eigen_assert(m_isInitialized && "LLT is not initialized.");
-    eigen_assert(m_info == Success && "LLT failed because matrix appears to be negative");
+    eigen_assert(m_isInitialized);
+    eigen_assert(m_info == Success);
     return internal::rcond_estimate_helper(m_l1_norm, *this);
   }
 
@@ -162,7 +162,7 @@ class LLT : public SolverBase<LLT<MatrixType_, UpLo_> > {
    * TODO: document the storage layout
    */
   inline const MatrixType& matrixLLT() const {
-    eigen_assert(m_isInitialized && "LLT is not initialized.");
+    eigen_assert(m_isInitialized);
     return m_matrix;
   }
 
@@ -174,7 +174,7 @@ class LLT : public SolverBase<LLT<MatrixType_, UpLo_> > {
    *          \c NumericalIssue if the matrix.appears not to be positive definite.
    */
   ComputationInfo info() const {
-    eigen_assert(m_isInitialized && "LLT is not initialized.");
+    eigen_assert(m_isInitialized);
     return m_info;
   }
 
@@ -477,7 +477,7 @@ void LLT<MatrixType_, UpLo_>::_solve_impl_transposed(const RhsType& rhs, DstType
 template <typename MatrixType, int UpLo_>
 template <typename Derived>
 void LLT<MatrixType, UpLo_>::solveInPlace(const MatrixBase<Derived>& bAndX) const {
-  eigen_assert(m_isInitialized && "LLT is not initialized.");
+  eigen_assert(m_isInitialized);
   eigen_assert(m_matrix.rows() == bAndX.rows());
   matrixL().solveInPlace(bAndX);
   matrixU().solveInPlace(bAndX);
@@ -488,7 +488,7 @@ void LLT<MatrixType, UpLo_>::solveInPlace(const MatrixBase<Derived>& bAndX) cons
  * This function is provided for debug purpose. */
 template <typename MatrixType, int UpLo_>
 MatrixType LLT<MatrixType, UpLo_>::reconstructedMatrix() const {
-  eigen_assert(m_isInitialized && "LLT is not initialized.");
+  eigen_assert(m_isInitialized);
   return matrixL() * matrixL().adjoint().toDenseMatrix();
 }
 

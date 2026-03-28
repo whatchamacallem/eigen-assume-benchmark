@@ -140,28 +140,28 @@ template <typename T>
 class array<T, 0> {
  public:
   EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE T& operator[](size_t) {
-    eigen_assert(false && "Can't index a zero size array");
+    eigen_assert(false);
     return dummy;
   }
   EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE const T& operator[](size_t) const {
-    eigen_assert(false && "Can't index a zero size array");
+    eigen_assert(false);
     return dummy;
   }
 
   EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE T& front() {
-    eigen_assert(false && "Can't index a zero size array");
+    eigen_assert(false);
     return dummy;
   }
   EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE const T& front() const {
-    eigen_assert(false && "Can't index a zero size array");
+    eigen_assert(false);
     return dummy;
   }
   EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE T& back() {
-    eigen_assert(false && "Can't index a zero size array");
+    eigen_assert(false);
     return dummy;
   }
   EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE const T& back() const {
-    eigen_assert(false && "Can't index a zero size array");
+    eigen_assert(false);
     return dummy;
   }
 

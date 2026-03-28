@@ -225,7 +225,7 @@ struct redux_impl<Func, Evaluator, DefaultTraversal, NoUnrolling> {
 
   template <typename XprType>
   EIGEN_DEVICE_FUNC static EIGEN_STRONG_INLINE Scalar run(const Evaluator& eval, const Func& func, const XprType& xpr) {
-    eigen_assert(xpr.rows() > 0 && xpr.cols() > 0 && "you are using an empty matrix");
+    eigen_assert(xpr.rows() > 0 && xpr.cols() > 0);
     Scalar res = eval.coeffByOuterInner(0, 0);
     for (Index i = 1; i < xpr.innerSize(); ++i) res = func(res, eval.coeffByOuterInner(0, i));
     for (Index i = 1; i < xpr.outerSize(); ++i)
@@ -240,7 +240,7 @@ struct redux_impl<Func, Evaluator, LinearTraversal, NoUnrolling> {
 
   template <typename XprType>
   EIGEN_DEVICE_FUNC static EIGEN_STRONG_INLINE Scalar run(const Evaluator& eval, const Func& func, const XprType& xpr) {
-    eigen_assert(xpr.size() > 0 && "you are using an empty matrix");
+    eigen_assert(xpr.size() > 0);
     Scalar res = eval.coeff(0);
     for (Index k = 1; k < xpr.size(); ++k) res = func(res, eval.coeff(k));
     return res;
@@ -331,7 +331,7 @@ struct redux_impl<Func, Evaluator, SliceVectorizedTraversal, Unrolling> {
 
   template <typename XprType>
   EIGEN_DEVICE_FUNC static Scalar run(const Evaluator& eval, const Func& func, const XprType& xpr) {
-    eigen_assert(xpr.rows() > 0 && xpr.cols() > 0 && "you are using an empty matrix");
+    eigen_assert(xpr.rows() > 0 && xpr.cols() > 0);
     constexpr Index packetSize = redux_traits<Func, Evaluator>::PacketSize;
     const Index innerSize = xpr.innerSize();
     const Index outerSize = xpr.outerSize();
@@ -368,7 +368,7 @@ struct redux_impl<Func, Evaluator, LinearVectorizedTraversal, CompleteUnrolling>
   template <typename XprType>
   EIGEN_DEVICE_FUNC static EIGEN_STRONG_INLINE Scalar run(const Evaluator& eval, const Func& func, const XprType& xpr) {
     EIGEN_ONLY_USED_FOR_DEBUG(xpr);
-    eigen_assert(xpr.rows() > 0 && xpr.cols() > 0 && "you are using an empty matrix");
+    eigen_assert(xpr.rows() > 0 && xpr.cols() > 0);
     if (VectorizedSize > 0) {
       Scalar res = func.predux(
           redux_vec_linear_unroller<Func, Evaluator, 0, Size / PacketSize>::template run<PacketType>(eval, func));
@@ -442,7 +442,7 @@ template <typename Derived>
 template <typename Func>
 EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE typename internal::traits<Derived>::Scalar DenseBase<Derived>::redux(
     const Func& func) const {
-  eigen_assert(this->rows() > 0 && this->cols() > 0 && "you are using an empty matrix");
+  eigen_assert(this->rows() > 0 && this->cols() > 0);
 
   typedef typename internal::redux_evaluator<Derived> ThisEvaluator;
   ThisEvaluator thisEval(derived());

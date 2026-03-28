@@ -287,7 +287,7 @@ struct EvalSymbolValueHelper;
 template <typename Tag>
 struct EvalSymbolValueHelper<Tag> {
   static constexpr Index eval_impl() {
-    eigen_assert(false && "Symbol not found.");
+    eigen_assert(false);
     return Index(Undefined);
   }
   static constexpr Index eval_at_compile_time_impl() { return Index(Undefined); }

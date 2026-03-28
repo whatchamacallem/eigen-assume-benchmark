@@ -294,7 +294,7 @@ class CompleteOrthogonalDecomposition
    * It is more efficient and numerically stable to call \c this->solve(rhs).
    */
   inline Inverse<CompleteOrthogonalDecomposition> pseudoInverse() const {
-    eigen_assert(m_cpqr.m_isInitialized && "CompleteOrthogonalDecomposition is not initialized.");
+    eigen_assert(m_cpqr.m_isInitialized);
     return Inverse<CompleteOrthogonalDecomposition>(*this);
   }
 
@@ -381,7 +381,7 @@ class CompleteOrthogonalDecomposition
    * \returns \c Success
    */
   ComputationInfo info() const {
-    eigen_assert(m_cpqr.m_isInitialized && "Decomposition is not initialized.");
+    eigen_assert(m_cpqr.m_isInitialized);
     return Success;
   }
 
@@ -399,7 +399,7 @@ class CompleteOrthogonalDecomposition
   template <bool Transpose_, typename Rhs>
   void _check_solve_assertion(const Rhs& b) const {
     EIGEN_ONLY_USED_FOR_DEBUG(b);
-    eigen_assert(m_cpqr.m_isInitialized && "CompleteOrthogonalDecomposition is not initialized.");
+    eigen_assert(m_cpqr.m_isInitialized);
     eigen_assert((Transpose_ ? derived().cols() : derived().rows()) == b.rows() &&
                  "CompleteOrthogonalDecomposition::solve(): invalid number of rows of the right hand side matrix b");
   }

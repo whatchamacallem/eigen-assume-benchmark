@@ -85,7 +85,7 @@ class FullPivLU : public SolverBase<FullPivLU<MatrixType_, PermutationIndex_> > 
    * \returns \c Success
    */
   ComputationInfo info() const {
-    eigen_assert(m_isInitialized && "FullPivLU is not initialized.");
+    eigen_assert(m_isInitialized);
     return Success;
   }
 
@@ -144,7 +144,7 @@ class FullPivLU : public SolverBase<FullPivLU<MatrixType_, PermutationIndex_> > 
    * \sa matrixL(), matrixU()
    */
   inline const MatrixType& matrixLU() const {
-    eigen_assert(m_isInitialized && "LU is not initialized.");
+    eigen_assert(m_isInitialized);
     return m_lu;
   }
 
@@ -156,7 +156,7 @@ class FullPivLU : public SolverBase<FullPivLU<MatrixType_, PermutationIndex_> > 
    * \sa rank()
    */
   inline Index nonzeroPivots() const {
-    eigen_assert(m_isInitialized && "LU is not initialized.");
+    eigen_assert(m_isInitialized);
     return m_nonzero_pivots;
   }
 
@@ -170,7 +170,7 @@ class FullPivLU : public SolverBase<FullPivLU<MatrixType_, PermutationIndex_> > 
    * \sa permutationQ()
    */
   EIGEN_DEVICE_FUNC inline const PermutationPType& permutationP() const {
-    eigen_assert(m_isInitialized && "LU is not initialized.");
+    eigen_assert(m_isInitialized);
     return m_p;
   }
 
@@ -179,7 +179,7 @@ class FullPivLU : public SolverBase<FullPivLU<MatrixType_, PermutationIndex_> > 
    * \sa permutationP()
    */
   inline const PermutationQType& permutationQ() const {
-    eigen_assert(m_isInitialized && "LU is not initialized.");
+    eigen_assert(m_isInitialized);
     return m_q;
   }
 
@@ -198,7 +198,7 @@ class FullPivLU : public SolverBase<FullPivLU<MatrixType_, PermutationIndex_> > 
    * \sa image()
    */
   inline const internal::kernel_retval<FullPivLU> kernel() const {
-    eigen_assert(m_isInitialized && "LU is not initialized.");
+    eigen_assert(m_isInitialized);
     return internal::kernel_retval<FullPivLU>(*this);
   }
 
@@ -222,7 +222,7 @@ class FullPivLU : public SolverBase<FullPivLU<MatrixType_, PermutationIndex_> > 
    * \sa kernel()
    */
   inline const internal::image_retval<FullPivLU> image(const MatrixType& originalMatrix) const {
-    eigen_assert(m_isInitialized && "LU is not initialized.");
+    eigen_assert(m_isInitialized);
     return internal::image_retval<FullPivLU>(*this, originalMatrix);
   }
 
@@ -254,7 +254,7 @@ class FullPivLU : public SolverBase<FullPivLU<MatrixType_, PermutationIndex_> > 
       the LU decomposition.
     */
   inline RealScalar rcond() const {
-    eigen_assert(m_isInitialized && "FullPivLU is not initialized.");
+    eigen_assert(m_isInitialized);
     if (!isInvertible()) {
       return RealScalar(0);
     }
@@ -335,7 +335,7 @@ class FullPivLU : public SolverBase<FullPivLU<MatrixType_, PermutationIndex_> > 
    */
   inline Index rank() const {
     using std::abs;
-    eigen_assert(m_isInitialized && "LU is not initialized.");
+    eigen_assert(m_isInitialized);
     RealScalar premultiplied_threshold = abs(m_maxpivot) * threshold();
     Index result = 0;
     for (Index i = 0; i < m_nonzero_pivots; ++i) result += (abs(m_lu.coeff(i, i)) > premultiplied_threshold);
@@ -349,7 +349,7 @@ class FullPivLU : public SolverBase<FullPivLU<MatrixType_, PermutationIndex_> > 
    *       setThreshold(const RealScalar&).
    */
   inline Index dimensionOfKernel() const {
-    eigen_assert(m_isInitialized && "LU is not initialized.");
+    eigen_assert(m_isInitialized);
     return cols() - rank();
   }
 
@@ -361,7 +361,7 @@ class FullPivLU : public SolverBase<FullPivLU<MatrixType_, PermutationIndex_> > 
    *       setThreshold(const RealScalar&).
    */
   inline bool isInjective() const {
-    eigen_assert(m_isInitialized && "LU is not initialized.");
+    eigen_assert(m_isInitialized);
     return rank() == cols();
   }
 
@@ -373,7 +373,7 @@ class FullPivLU : public SolverBase<FullPivLU<MatrixType_, PermutationIndex_> > 
    *       setThreshold(const RealScalar&).
    */
   inline bool isSurjective() const {
-    eigen_assert(m_isInitialized && "LU is not initialized.");
+    eigen_assert(m_isInitialized);
     return rank() == rows();
   }
 
@@ -384,7 +384,7 @@ class FullPivLU : public SolverBase<FullPivLU<MatrixType_, PermutationIndex_> > 
    *       setThreshold(const RealScalar&).
    */
   inline bool isInvertible() const {
-    eigen_assert(m_isInitialized && "LU is not initialized.");
+    eigen_assert(m_isInitialized);
     return isInjective() && (m_lu.rows() == m_lu.cols());
   }
 
@@ -396,8 +396,8 @@ class FullPivLU : public SolverBase<FullPivLU<MatrixType_, PermutationIndex_> > 
    * \sa MatrixBase::inverse()
    */
   inline Inverse<FullPivLU> inverse() const {
-    eigen_assert(m_isInitialized && "LU is not initialized.");
-    eigen_assert(m_lu.rows() == m_lu.cols() && "You can't take the inverse of a non-square matrix!");
+    eigen_assert(m_isInitialized);
+    eigen_assert(m_lu.rows() == m_lu.cols());
     return Inverse<FullPivLU>(*this);
   }
 
@@ -558,8 +558,8 @@ void FullPivLU<MatrixType, PermutationIndex>::computeInPlace() {
 
 template <typename MatrixType, typename PermutationIndex>
 typename internal::traits<MatrixType>::Scalar FullPivLU<MatrixType, PermutationIndex>::determinant() const {
-  eigen_assert(m_isInitialized && "LU is not initialized.");
-  eigen_assert(m_lu.rows() == m_lu.cols() && "You can't take the determinant of a non-square matrix!");
+  eigen_assert(m_isInitialized);
+  eigen_assert(m_lu.rows() == m_lu.cols());
   return Scalar(m_det_pq) * Scalar(m_lu.diagonal().prod());
 }
 
@@ -568,7 +568,7 @@ typename internal::traits<MatrixType>::Scalar FullPivLU<MatrixType, PermutationI
  * This function is provided for debug purposes. */
 template <typename MatrixType, typename PermutationIndex>
 MatrixType FullPivLU<MatrixType, PermutationIndex>::reconstructedMatrix() const {
-  eigen_assert(m_isInitialized && "LU is not initialized.");
+  eigen_assert(m_isInitialized);
   const Index smalldim = (std::min)(m_lu.rows(), m_lu.cols());
   // LU
   MatrixType res(m_lu.rows(), m_lu.cols());

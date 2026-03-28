@@ -1158,7 +1158,7 @@ EIGEN_STRONG_INLINE Packet4i pdiv<Packet4i>(const Packet4i& a, const Packet4i& b
 #else
   EIGEN_UNUSED_VARIABLE(a);
   EIGEN_UNUSED_VARIABLE(b);
-  eigen_assert(false && "packet integer division are not supported by AltiVec");
+  eigen_assert(false);
   return pset1<Packet4i>(0);
 #endif
 }

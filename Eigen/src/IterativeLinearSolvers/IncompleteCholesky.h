@@ -98,7 +98,7 @@ class IncompleteCholesky : public SparseSolverBase<IncompleteCholesky<Scalar, Up
    *          \c NumericalIssue if the matrix appears to be negative.
    */
   ComputationInfo info() const {
-    eigen_assert(m_isInitialized && "IncompleteCholesky is not initialized.");
+    eigen_assert(m_isInitialized);
     return m_info;
   }
 
@@ -148,7 +148,7 @@ class IncompleteCholesky : public SparseSolverBase<IncompleteCholesky<Scalar, Up
   // internal
   template <typename Rhs, typename Dest>
   void _solve_impl(const Rhs& b, Dest& x) const {
-    eigen_assert(m_factorizationIsOk && "factorize() should be called first");
+    eigen_assert(m_factorizationIsOk);
     if (m_perm.rows() == b.rows())
       x = m_perm * b;
     else
@@ -162,19 +162,19 @@ class IncompleteCholesky : public SparseSolverBase<IncompleteCholesky<Scalar, Up
 
   /** \returns the sparse lower triangular factor L */
   const FactorType& matrixL() const {
-    eigen_assert(m_factorizationIsOk && "factorize() should be called first");
+    eigen_assert(m_factorizationIsOk);
     return m_L;
   }
 
   /** \returns a vector representing the scaling factor S */
   const VectorRx& scalingS() const {
-    eigen_assert(m_factorizationIsOk && "factorize() should be called first");
+    eigen_assert(m_factorizationIsOk);
     return m_scale;
   }
 
   /** \returns the fill-in reducing permutation P (can be empty for a natural ordering) */
   const PermutationType& permutationP() const {
-    eigen_assert(m_analysisIsOk && "analyzePattern() should be called first");
+    eigen_assert(m_analysisIsOk);
     return m_perm;
   }
 
@@ -204,7 +204,7 @@ template <typename Scalar, int UpLo_, typename OrderingType>
 template <typename MatrixType_>
 void IncompleteCholesky<Scalar, UpLo_, OrderingType>::factorize(const MatrixType_& mat) {
   using std::sqrt;
-  eigen_assert(m_analysisIsOk && "analyzePattern() should be called first");
+  eigen_assert(m_analysisIsOk);
 
   // Dropping strategy : Keep only the p largest elements per column, where p is the number of elements in the column of
   // the original matrix. Other strategies will be added

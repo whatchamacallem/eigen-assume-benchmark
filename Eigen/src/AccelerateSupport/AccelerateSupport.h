@@ -212,7 +212,7 @@ class AccelerateImpl : public SparseSolverBase<AccelerateImpl<MatrixType_, UpLo_
   inline Index rows() const { return m_nRows; }
 
   ComputationInfo info() const {
-    eigen_assert(m_isInitialized && "Decomposition is not initialized.");
+    eigen_assert(m_isInitialized);
     return m_info;
   }
 
@@ -369,7 +369,7 @@ void AccelerateImpl<MatrixType_, UpLo_, Solver_, EnforceSquare_>::analyzePattern
  */
 template <typename MatrixType_, int UpLo_, SparseFactorization_t Solver_, bool EnforceSquare_>
 void AccelerateImpl<MatrixType_, UpLo_, Solver_, EnforceSquare_>::factorize(const MatrixType& a) {
-  eigen_assert(m_symbolicFactorization && "You must first call analyzePattern()");
+  eigen_assert(m_symbolicFactorization);
   eigen_assert(m_nRows == a.rows() && m_nCols == a.cols());
 
   if (EnforceSquare_) eigen_assert(a.rows() == a.cols());

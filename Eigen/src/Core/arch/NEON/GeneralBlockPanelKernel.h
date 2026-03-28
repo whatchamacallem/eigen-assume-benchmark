@@ -199,7 +199,7 @@ struct gebp_traits<half, half, false, false, Architecture::NEON>
   EIGEN_STRONG_INLINE void loadRhsQuad(const RhsScalar*, RhsPacket&) const {
     // If LHS is a Packet8h, we cannot correctly mimic a ploadquad of the RHS
     // using a single scalar value.
-    eigen_assert(false && "Cannot loadRhsQuad for a scalar RHS.");
+    eigen_assert(false);
   }
 
   EIGEN_STRONG_INLINE void madd(const LhsPacket& a, const RhsPacket& b, AccPacket& c, RhsPacket& /*tmp*/,

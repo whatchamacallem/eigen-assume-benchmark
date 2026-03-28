@@ -234,7 +234,7 @@ class SparseMatrix : public SparseCompressedBase<SparseMatrix<Scalar_, Options_,
     const Index inner = IsRowMajor ? col : row;
     Index start = m_outerIndex[outer];
     Index end = isCompressed() ? m_outerIndex[outer + 1] : m_outerIndex[outer] + m_innerNonZeros[outer];
-    eigen_assert(end >= start && "you probably called coeffRef on a non finalized matrix");
+    eigen_assert(end >= start);
     Index dst = start == end ? end : m_data.searchLowerIndex(start, end, inner);
     if (dst == end) {
       Index capacity = m_outerIndex[outer + 1] - end;
@@ -313,7 +313,7 @@ class SparseMatrix : public SparseCompressedBase<SparseMatrix<Scalar_, Options_,
    *
    * Precondition: the matrix must be in compressed mode. */
   inline void reserve(Index reserveSize) {
-    eigen_assert(isCompressed() && "This function does not make sense in non compressed mode.");
+    eigen_assert(isCompressed());
     m_data.reserve(reserveSize);
   }
 
@@ -428,7 +428,7 @@ class SparseMatrix : public SparseCompressedBase<SparseMatrix<Scalar_, Options_,
   /** \internal
    * \sa insertBack, startVec */
   inline Scalar& insertBackByOuterInner(Index outer, Index inner) {
-    eigen_assert(Index(m_outerIndex[outer + 1]) == m_data.size() && "Invalid ordered insertion (invalid outer index)");
+    eigen_assert(Index(m_outerIndex[outer + 1]) == m_data.size());
     eigen_assert((m_outerIndex[outer + 1] - m_outerIndex[outer] == 0 || m_data.index(m_data.size() - 1) < inner) &&
                  "Invalid ordered insertion (invalid inner index)");
     StorageIndex p = m_outerIndex[outer + 1];
@@ -451,7 +451,7 @@ class SparseMatrix : public SparseCompressedBase<SparseMatrix<Scalar_, Options_,
   inline void startVec(Index outer) {
     eigen_assert(m_outerIndex[outer] == Index(m_data.size()) &&
                  "You must call startVec for each inner vector sequentially");
-    eigen_assert(m_outerIndex[outer + 1] == 0 && "You must call startVec for each inner vector sequentially");
+    eigen_assert(m_outerIndex[outer + 1] == 0);
     m_outerIndex[outer + 1] = m_outerIndex[outer];
   }
 
@@ -474,7 +474,7 @@ class SparseMatrix : public SparseCompressedBase<SparseMatrix<Scalar_, Options_,
 
   // remove outer vectors j, j+1 ... j+num-1 and resize the matrix
   void removeOuterVectors(Index j, Index num = 1) {
-    eigen_assert(num >= 0 && j >= 0 && j + num <= m_outerSize && "Invalid parameters");
+    eigen_assert(num >= 0 && j >= 0 && j + num <= m_outerSize);
 
     const Index newRows = IsRowMajor ? m_outerSize - num : rows();
     const Index newCols = IsRowMajor ? cols() : m_outerSize - num;
@@ -508,7 +508,7 @@ class SparseMatrix : public SparseCompressedBase<SparseMatrix<Scalar_, Options_,
   // insert empty outer vectors at indices j, j+1 ... j+num-1 and resize the matrix
   void insertEmptyOuterVectors(Index j, Index num = 1) {
     using std::fill_n;
-    eigen_assert(num >= 0 && j >= 0 && j < m_outerSize && "Invalid parameters");
+    eigen_assert(num >= 0 && j >= 0 && j < m_outerSize);
 
     const Index newRows = IsRowMajor ? m_outerSize + num : rows();
     const Index newCols = IsRowMajor ? cols() : m_outerSize + num;
@@ -564,8 +564,8 @@ class SparseMatrix : public SparseCompressedBase<SparseMatrix<Scalar_, Options_,
   /** \internal
    * same as insert(Index,Index) except that the indices are given relative to the storage order */
   Scalar& insertByOuterInner(Index j, Index i) {
-    eigen_assert(j >= 0 && j < m_outerSize && "invalid outer index");
-    eigen_assert(i >= 0 && i < m_innerSize && "invalid inner index");
+    eigen_assert(j >= 0 && j < m_outerSize);
+    eigen_assert(i >= 0 && i < m_innerSize);
     Index start = m_outerIndex[j];
     Index end = isCompressed() ? m_outerIndex[j + 1] : start + m_innerNonZeros[j];
     Index dst = start == end ? end : m_data.searchLowerIndex(start, end, i);
@@ -840,7 +840,7 @@ class SparseMatrix : public SparseCompressedBase<SparseMatrix<Scalar_, Options_,
   /** Sets *this to the identity matrix.
    * This function also turns the matrix into compressed mode, and drop any reserved memory. */
   inline void setIdentity() {
-    eigen_assert(m_outerSize == m_innerSize && "ONLY FOR SQUARED MATRICES");
+    eigen_assert(m_outerSize == m_innerSize);
     internal::conditional_aligned_delete_auto<StorageIndex, true>(m_innerNonZeros, m_outerSize);
     m_innerNonZeros = 0;
     m_data.resize(m_outerSize);

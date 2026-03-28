@@ -344,7 +344,7 @@ class UmfPackLU : public SparseSolverBase<UmfPackLU<MatrixType_> > {
    *          \c NumericalIssue if the matrix.appears to be negative.
    */
   ComputationInfo info() const {
-    eigen_assert(m_isInitialized && "Decomposition is not initialized.");
+    eigen_assert(m_isInitialized);
     return m_info;
   }
 
@@ -403,7 +403,7 @@ class UmfPackLU : public SparseSolverBase<UmfPackLU<MatrixType_> > {
    * \sa factorize(), compute()
    */
   inline int umfpackFactorizeReturncode() const {
-    eigen_assert(m_numeric && "UmfPackLU: you must first call factorize()");
+    eigen_assert(m_numeric);
     return m_fact_errorCode;
   }
 
@@ -431,7 +431,7 @@ class UmfPackLU : public SparseSolverBase<UmfPackLU<MatrixType_> > {
    */
   template <typename InputMatrixType>
   void factorize(const InputMatrixType &matrix) {
-    eigen_assert(m_analysisIsOk && "UmfPackLU: you must first call analyzePattern()");
+    eigen_assert(m_analysisIsOk);
     if (m_numeric) umfpack_free_numeric(&m_numeric, Scalar(), StorageIndex());
 
     grab(matrix.derived());
@@ -450,7 +450,7 @@ class UmfPackLU : public SparseSolverBase<UmfPackLU<MatrixType_> > {
    * \sa analyzePattern(), compute()
    */
   void printUmfpackInfo() {
-    eigen_assert(m_analysisIsOk && "UmfPackLU: you must first call analyzePattern()");
+    eigen_assert(m_analysisIsOk);
     umfpack_report_info(m_control.data(), m_umfpackInfo.data(), Scalar(), StorageIndex());
   }
 
@@ -460,7 +460,7 @@ class UmfPackLU : public SparseSolverBase<UmfPackLU<MatrixType_> > {
    * \sa analyzePattern(), compute()
    */
   void printUmfpackStatus() {
-    eigen_assert(m_analysisIsOk && "UmfPackLU: you must first call analyzePattern()");
+    eigen_assert(m_analysisIsOk);
     umfpack_report_status(m_control.data(), m_fact_errorCode, Scalar(), StorageIndex());
   }
 
@@ -579,9 +579,9 @@ template <typename MatrixType>
 template <typename BDerived, typename XDerived>
 bool UmfPackLU<MatrixType>::_solve_impl(const MatrixBase<BDerived> &b, MatrixBase<XDerived> &x) const {
   Index rhsCols = b.cols();
-  eigen_assert((BDerived::Flags & RowMajorBit) == 0 && "UmfPackLU backend does not support non col-major rhs yet");
-  eigen_assert((XDerived::Flags & RowMajorBit) == 0 && "UmfPackLU backend does not support non col-major result yet");
-  eigen_assert(b.derived().data() != x.derived().data() && " Umfpack does not support inplace solve");
+  eigen_assert((BDerived::Flags & RowMajorBit) == 0);
+  eigen_assert((XDerived::Flags & RowMajorBit) == 0);
+  eigen_assert(b.derived().data() != x.derived().data());
 
   Scalar *x_ptr = 0;
   Matrix<Scalar, Dynamic, 1> x_tmp;

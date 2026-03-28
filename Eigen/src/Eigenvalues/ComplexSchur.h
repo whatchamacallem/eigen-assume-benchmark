@@ -140,8 +140,8 @@ class ComplexSchur {
    * Output: \verbinclude ComplexSchur_matrixU.out
    */
   const ComplexMatrixType& matrixU() const {
-    eigen_assert(m_isInitialized && "ComplexSchur is not initialized.");
-    eigen_assert(m_matUisUptodate && "The matrix U has not been computed during the ComplexSchur decomposition.");
+    eigen_assert(m_isInitialized);
+    eigen_assert(m_matUisUptodate);
     return m_matU;
   }
 
@@ -163,7 +163,7 @@ class ComplexSchur {
    * Output: \verbinclude ComplexSchur_matrixT.out
    */
   const ComplexMatrixType& matrixT() const {
-    eigen_assert(m_isInitialized && "ComplexSchur is not initialized.");
+    eigen_assert(m_isInitialized);
     return m_matT;
   }
 
@@ -218,7 +218,7 @@ class ComplexSchur {
    * \returns \c Success if computation was successful, \c NoConvergence otherwise.
    */
   ComputationInfo info() const {
-    eigen_assert(m_isInitialized && "ComplexSchur is not initialized.");
+    eigen_assert(m_isInitialized);
     return m_info;
   }
 

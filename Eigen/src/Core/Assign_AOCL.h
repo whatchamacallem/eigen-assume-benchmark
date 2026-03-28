@@ -203,7 +203,7 @@ public:
                     const assign_op<double, double> &) {                       \
       eigen_assert(dst.rows() == src.rows() && dst.cols() == src.cols());      \
       Eigen::Index n = dst.size();                                             \
-      eigen_assert(n <= INT_MAX && "AOCL does not support arrays larger than INT_MAX"); \
+      eigen_assert(n <= INT_MAX); \
       if (n <= 0)                                                              \
         return;                                                                \
       const double *input =                                                    \
@@ -274,7 +274,7 @@ EIGEN_AOCL_VML_UNARY_CALL_DOUBLE(log2, amd_vrda_log2)
                     const assign_op<double, double> &) {                       \
       eigen_assert(dst.rows() == src.rows() && dst.cols() == src.cols());      \
       Eigen::Index n = dst.size();                                             \
-      eigen_assert(n <= INT_MAX && "AOCL does not support arrays larger than INT_MAX"); \
+      eigen_assert(n <= INT_MAX); \
       if (n <= 0)                                                              \
         return;                                                                \
       const double *lhs = reinterpret_cast<const double *>(src.lhs().data());  \

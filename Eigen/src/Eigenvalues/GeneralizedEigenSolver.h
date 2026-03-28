@@ -174,8 +174,8 @@ class GeneralizedEigenSolver {
    * \sa eigenvalues()
    */
   EigenvectorsType eigenvectors() const {
-    eigen_assert(info() == Success && "GeneralizedEigenSolver failed to compute eigenvectors");
-    eigen_assert(m_computeEigenvectors && "Eigenvectors for GeneralizedEigenSolver were not calculated");
+    eigen_assert(info() == Success);
+    eigen_assert(m_computeEigenvectors);
     return m_eivec;
   }
 
@@ -198,7 +198,7 @@ class GeneralizedEigenSolver {
    * \sa alphas(), betas(), eigenvectors()
    */
   EigenvalueType eigenvalues() const {
-    eigen_assert(info() == Success && "GeneralizedEigenSolver failed to compute eigenvalues.");
+    eigen_assert(info() == Success);
     return EigenvalueType(m_alphas, m_betas);
   }
 
@@ -208,7 +208,7 @@ class GeneralizedEigenSolver {
    *
    * \sa betas(), eigenvalues() */
   const ComplexVectorType& alphas() const {
-    eigen_assert(info() == Success && "GeneralizedEigenSolver failed to compute alphas.");
+    eigen_assert(info() == Success);
     return m_alphas;
   }
 
@@ -218,7 +218,7 @@ class GeneralizedEigenSolver {
    *
    * \sa alphas(), eigenvalues() */
   const VectorType& betas() const {
-    eigen_assert(info() == Success && "GeneralizedEigenSolver failed to compute betas.");
+    eigen_assert(info() == Success);
     return m_betas;
   }
 
@@ -248,7 +248,7 @@ class GeneralizedEigenSolver {
   GeneralizedEigenSolver& compute(const MatrixType& A, const MatrixType& B, bool computeEigenvectors = true);
 
   ComputationInfo info() const {
-    eigen_assert(m_isInitialized && "EigenSolver is not initialized.");
+    eigen_assert(m_isInitialized);
     return m_realQZ.info();
   }
 

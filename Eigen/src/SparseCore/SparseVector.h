@@ -223,7 +223,7 @@ class SparseVector : public SparseCompressedBase<SparseVector<Scalar_, Options_,
    * \sa resize(Index)
    */
   void resize(Index rows, Index cols) {
-    eigen_assert((IsColVector ? cols : rows) == 1 && "Outer dimension must equal 1");
+    eigen_assert((IsColVector ? cols : rows) == 1);
     resize(IsColVector ? rows : cols);
   }
 
